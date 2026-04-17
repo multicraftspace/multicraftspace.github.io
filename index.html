@@ -19,10 +19,34 @@ body {
 }
 
 .header {
-  padding: 20px;
-  text-align: center;
-  font-size: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
   border-bottom: 2px solid #a855f7;
+}
+
+.logo {
+  font-size: 28px;
+}
+
+.top-btn {
+  padding: 10px 15px;
+  border: 2px solid #a855f7;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border: 2px solid #a855f7;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  display: none;
 }
 
 .grid {
@@ -46,33 +70,37 @@ body {
 
 .bg {
   width: 100%;
-  height: 160px;
+  aspect-ratio: 16/9;
   object-fit: cover;
 }
 
 .content {
-  padding: 15px;
+  padding: 12px;
 }
 
-.server-name {
-  font-size: 20px;
-  margin-bottom: 10px;
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-row img {
+  width: 20px;
 }
 
 .actions {
+  margin-top: 10px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: flex-end;
 }
 
 .play-btn {
-  padding: 10px 16px;
-  border-radius: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
   background: linear-gradient(135deg, #a855f7, #7e22ce);
   color: white;
   cursor: pointer;
   transition: 0.2s;
-  box-shadow: 0 5px 15px rgba(168,85,247,0.4);
 }
 
 .play-btn:hover {
@@ -82,17 +110,20 @@ body {
 .play-btn:active {
   transform: scale(0.9);
 }
-
-.heart {
-  width: 26px;
-  cursor: pointer;
-}
 </style>
 </head>
 
 <body>
 
-<div class="header">MCspace</div>
+<div class="header">
+  <div class="logo">MCspace</div>
+  <div class="top-btn" onclick="openPopup()">Add my server</div>
+</div>
+
+<div class="popup" id="popup">
+  <div>DM @rwo1ld in discord, to add your server.</div>
+  <button onclick="closePopup()">Close</button>
+</div>
 
 <div class="grid" id="grid"></div>
 
@@ -110,10 +141,12 @@ servers.forEach(server => {
   card.innerHTML = `
     <img class="bg" src="bg${server.id}.png">
     <div class="content">
-      <div class="server-name">${server.name}</div>
+      <div class="title-row">
+        <img src="heart${server.id}.png">
+        <div>${server.name}</div>
+      </div>
       <div class="actions">
         <div class="play-btn" onclick="joinServer('${server.code}')">Play</div>
-        <img class="heart" src="heart${server.id}.png">
       </div>
     </div>
   `;
@@ -123,6 +156,14 @@ servers.forEach(server => {
 
 function joinServer(code) {
   window.location.href = "server.html?code=" + code;
+}
+
+function openPopup() {
+  document.getElementById("popup").style.display = "block";
+}
+
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
 }
 </script>
 
