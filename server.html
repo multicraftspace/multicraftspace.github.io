@@ -15,23 +15,29 @@ body {
   margin: 0;
   font-family: 'MultiCraft';
   background: radial-gradient(circle at top, #ffffff, #f3e8ff);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px;
 }
 
+/* BACK BUTTON */
 .back {
-  margin-bottom: 15px;
+  margin: 20px;
   cursor: pointer;
   border: 2px solid #a855f7;
   padding: 8px 12px;
   border-radius: 10px;
+  width: fit-content;
+  transition: 0.25s;
 }
 
+.back:hover {
+  background: #a855f7;
+  color: white;
+}
+
+/* FULL WIDTH CARD */
 .card {
   width: 100%;
-  max-width: 700px;
+  max-width: 1000px;
+  margin: auto;
   background: white;
   border-radius: 20px;
   box-shadow: 0 20px 50px rgba(168,85,247,0.3);
@@ -45,38 +51,56 @@ body {
 }
 
 .content {
-  padding: 20px;
+  padding: 25px;
 }
 
 .title-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  font-size: 26px;
 }
 
 .title-row img {
-  width: 24px;
+  width: 26px;
+}
+
+.desc {
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+/* INVITE */
+.invite-label {
+  margin-top: 20px;
+  font-size: 14px;
+  opacity: 0.7;
 }
 
 .invite {
   display: flex;
-  margin-top: 15px;
+  margin-top: 5px;
 }
 
 .invite input {
   flex: 1;
-  padding: 12px;
+  padding: 14px;
   border-radius: 10px 0 0 10px;
   border: 2px solid #a855f7;
 }
 
 .invite button {
-  padding: 12px;
+  padding: 14px;
   border: none;
   background: #a855f7;
   color: white;
   border-radius: 0 10px 10px 0;
   cursor: pointer;
+  transition: 0.25s;
+}
+
+.invite button:hover {
+  background: #7e22ce;
 }
 </style>
 </head>
@@ -90,10 +114,12 @@ body {
   <div class="content">
     <div class="title-row">
       <img id="heart">
-      <h2 id="name">Loading...</h2>
+      <div id="name">Loading...</div>
     </div>
-    <p id="desc">Loading server info...</p>
 
+    <div class="desc" id="desc">Loading server info...</div>
+
+    <div class="invite-label">Invite Code</div>
     <div class="invite">
       <input id="invite" readonly>
       <button onclick="copyCode()">Copy</button>
@@ -118,7 +144,6 @@ if (servers[code]) {
   document.getElementById("heart").src = "heart" + s.id + ".png";
 } else {
   document.getElementById("name").innerText = "Server not found";
-  document.getElementById("desc").innerText = "Invalid code";
 }
 
 function copyCode() {
