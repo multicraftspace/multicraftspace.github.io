@@ -22,6 +22,7 @@ body {
 .header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 15px 25px;
   border-bottom: 2px solid #a855f7;
 }
@@ -36,6 +37,21 @@ body {
   height: 40px;
 }
 
+/* ADD BUTTON */
+.add-btn {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 2px solid #a855f7;
+  background: linear-gradient(135deg, #a855f7, #7e22ce);
+  color: white;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.add-btn:hover {
+  transform: scale(1.05);
+}
+
 /* GRID */
 .grid {
   display: grid;
@@ -44,6 +60,7 @@ body {
   padding: 30px;
 }
 
+/* CARD FIX */
 .card {
   border-radius: 20px;
   overflow: hidden;
@@ -51,6 +68,10 @@ body {
   box-shadow: 0 15px 35px rgba(168,85,247,0.25);
   transition: 0.3s;
   border: 2px solid transparent;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .card.trending {
@@ -64,8 +85,12 @@ body {
   object-fit: cover;
 }
 
+/* CONTENT FIX */
 .content {
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .title-row {
@@ -74,14 +99,21 @@ body {
   align-items: center;
 }
 
+/* DESCRIPTION CLAMP */
 .desc {
   font-size: 13px;
   opacity: 0.7;
   margin-top: 5px;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
+/* BUTTON FIX */
 .actions {
-  margin-top: 10px;
+  margin-top: auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -92,7 +124,7 @@ body {
   opacity: 0.7;
 }
 
-/* BUTTONS */
+/* PLAY BUTTON */
 .play-btn {
   padding: 10px 16px;
   border-radius: 12px;
@@ -101,16 +133,41 @@ body {
   color: white;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 5px 15px rgba(168,85,247,0.3);
 }
 
 .play-btn:hover {
   transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 10px 25px rgba(168,85,247,0.5);
 }
 
-.play-btn:active {
-  transform: scale(0.92);
+/* MODAL */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+}
+
+.modal-box {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  text-align: center;
+  max-width: 320px;
+}
+
+.close-btn {
+  margin-top: 15px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: none;
+  background: #a855f7;
+  color: white;
+  cursor: pointer;
 }
 </style>
 </head>
@@ -122,9 +179,20 @@ body {
     <img src="logo.png">
     <div>MCspace</div>
   </div>
+
+  <button class="add-btn" onclick="openModal()">+ Add my server</button>
 </div>
 
 <div class="grid" id="grid"></div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h3>Want to add your server?</h3>
+    <p>DM @rwor1d in Discord to add your server.</p>
+    <button class="close-btn" onclick="closeModal()">Close</button>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -144,18 +212,8 @@ const db = getFirestore(app);
 
 /* SERVERS */
 let servers = [
-  { 
-    id: 1, 
-    name: "Erratic SMP", 
-    desc: "Good MultiCraft SMP with no areas, and more very cool features.", 
-    code: "M5R9X1NY" 
-  },
-  { 
-    id: 2, 
-    name: "Ronaldo Vs Messi", 
-    desc: "BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS / MANHUNT / TREASURE HUNT / BRIDGING / AXE PVP / AND MANY MORE .. ✨", 
-    code: "KAAYBNDP" 
-  }
+  { id: 1, name: "Erratic SMP", desc: "Good MultiCraft SMP with no areas, and more very cool features.", code: "M5R9X1NY" },
+  { id: 2, name: "Ronaldo Vs Messi", desc: "BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS / MANHUNT / TREASURE HUNT / BRIDGING / AXE PVP / AND MANY MORE .. ✨", code: "KAAYBNDP" }
 ];
 
 /* LOAD VISITS */
@@ -172,6 +230,7 @@ async function init() {
   servers.sort((a,b) => b.visits - a.visits);
 
   const grid = document.getElementById("grid");
+  grid.innerHTML = "";
 
   servers.forEach(server => {
     const trending = server.visits >= 5;
@@ -217,6 +276,15 @@ window.joinServer = async function(code) {
   }
 
   window.location.href = "server.html?code=" + code;
+};
+
+/* MODAL */
+window.openModal = () => {
+  document.getElementById("modal").style.display = "flex";
+};
+
+window.closeModal = () => {
+  document.getElementById("modal").style.display = "none";
 };
 
 init();
