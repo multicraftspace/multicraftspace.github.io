@@ -91,7 +91,6 @@ body {
   margin-top: 5px;
 }
 
-/* INPUT (LEFT) */
 .invite input {
   flex: 1;
   padding: 12px;
@@ -102,12 +101,10 @@ body {
   font-family: 'MultiCraft';
 }
 
-/* INPUT FOCUS */
 .invite input:focus {
   box-shadow: 0 0 10px rgba(168,85,247,0.3);
 }
 
-/* BUTTON (RIGHT) */
 .invite button {
   border-left: none;
   border-radius: 0 12px 12px 0;
@@ -161,26 +158,38 @@ const servers = {
     id: 1,
     name: "Erratic SMP",
     desc: "Good MultiCraft SMP with no areas, and more very cool features."
-  }
-  "KAAYBNDP: {
+  },
+  "KAAYBNDP": {
     id: 2,
     name: "Ronaldo Vs Messi",
-    desc: "BEST SERVER  👌, PARKOUR / PvP  / MINI GAMES / BEDWARS  / MANHUNT / TREASURE HUNT / BRIDGING /  AXE PVP / AND MANY MORE .. ✨"
+    desc: "BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS / MANHUNT / TREASURE HUNT / BRIDGING / AXE PVP / AND MANY MORE .. ✨"
   }
 };
 
+/* GET CODE */
 const code = new URLSearchParams(window.location.search).get("code");
+const s = servers[code];
 
-if (servers[code]) {
-  const s = servers[code];
-
+/* LOAD SERVER */
+if (s) {
   document.getElementById("name").innerText = s.name;
   document.getElementById("desc").innerText = s.desc;
   document.getElementById("invite").value = code;
-  document.getElementById("bg").src = "bg" + s.id + ".png";
-  document.getElementById("heart").src = "heart" + s.id + ".png";
+
+  const bg = document.getElementById("bg");
+  const heart = document.getElementById("heart");
+
+  bg.src = "bg" + s.id + ".png";
+  heart.src = "heart" + s.id + ".png";
+
+  /* fallback if image missing */
+  bg.onerror = () => bg.src = "bg1.png";
+  heart.onerror = () => heart.src = "heart1.png";
+
+  document.title = s.name + " | MCspace";
 } else {
   document.getElementById("name").innerText = "Server not found";
+  document.getElementById("desc").innerText = "Invalid or missing server code.";
 }
 
 /* COPY */
