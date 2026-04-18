@@ -142,16 +142,30 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* SERVERS */
 let servers = [
-  { id: 1, name: "Erratic SMP", desc: "Good MultiCraft SMP with no areas, and more very cool features.", code: "M5R9X1NY" }
-  { id: 2, name: "Ronaldo Vs Messi", desc: "BEST SERVER  👌, PARKOUR / PvP  / MINI GAMES / BEDWARS  / MANHUNT / TREASURE HUNT / BRIDGING /  AXE PVP / AND MANY MORE .. ✨", code: "KAAYBNDP" }
+  { 
+    id: 1, 
+    name: "Erratic SMP", 
+    desc: "Good MultiCraft SMP with no areas, and more very cool features.", 
+    code: "M5R9X1NY" 
+  },
+  { 
+    id: 2, 
+    name: "Ronaldo Vs Messi", 
+    desc: "BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS / MANHUNT / TREASURE HUNT / BRIDGING / AXE PVP / AND MANY MORE .. ✨", 
+    code: "KAAYBNDP" 
+  }
 ];
+
+/* LOAD VISITS */
 async function loadVisits(server) {
   const ref = doc(db, "servers", server.code);
   const snap = await getDoc(ref);
   server.visits = snap.exists() ? (snap.data().visits || 0) : 0;
 }
 
+/* INIT */
 async function init() {
   await Promise.all(servers.map(loadVisits));
 
@@ -166,10 +180,10 @@ async function init() {
     card.className = "card" + (trending ? " trending" : "");
 
     card.innerHTML = `
-      <img class="bg" src="bg${server.id}.png">
+      <img class="bg" src="bg${server.id}.png" onerror="this.src='bg1.png'">
       <div class="content">
         <div class="title-row">
-          <img src="heart${server.id}.png" width="18">
+          <img src="heart${server.id}.png" width="18" onerror="this.src='heart1.png'">
           <div>${server.name}</div>
         </div>
         <div class="desc">${server.desc}</div>
@@ -184,6 +198,7 @@ async function init() {
   });
 }
 
+/* JOIN */
 window.joinServer = async function(code) {
   const key = "lastVisit_" + code;
   const last = localStorage.getItem(key);
