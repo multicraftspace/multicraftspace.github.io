@@ -45,11 +45,6 @@ body {
   background: linear-gradient(135deg, #a855f7, #7e22ce);
   color: white;
   cursor: pointer;
-  transition: 0.25s;
-}
-
-.add-btn:hover {
-  transform: scale(1.05);
 }
 
 /* GRID */
@@ -60,32 +55,57 @@ body {
   padding: 30px;
 }
 
-/* CARD FIX */
+/* CARD */
 .card {
   border-radius: 20px;
   overflow: hidden;
   background: white;
   box-shadow: 0 15px 35px rgba(168,85,247,0.25);
-  transition: 0.3s;
   border: 2px solid transparent;
-
   display: flex;
   flex-direction: column;
-  height: 100%;
+  position: relative;
 }
 
+/* TRENDING */
 .card.trending {
   border: 2px solid red;
-  box-shadow: 0 0 20px rgba(255,0,0,0.4);
 }
 
+/* RECOMMENDED */
+.card.recommended {
+  border: 2px solid cyan;
+}
+
+/* BADGES */
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  color: white;
+}
+
+.badge.trending {
+  background: red;
+}
+
+.badge.recommended {
+  background: cyan;
+  color: black;
+  top: 35px;
+}
+
+/* IMAGE */
 .bg {
   width: 100%;
   aspect-ratio: 16/9;
   object-fit: cover;
 }
 
-/* CONTENT FIX */
+/* CONTENT */
 .content {
   padding: 12px;
   display: flex;
@@ -95,23 +115,34 @@ body {
 
 .title-row {
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-/* DESCRIPTION CLAMP */
+/* AUTHOR */
+.author {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.check {
+  color: cyan;
+  font-size: 12px;
+}
+
+/* DESC */
 .desc {
   font-size: 13px;
   opacity: 0.7;
   margin-top: 5px;
-
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* BUTTON FIX */
+/* ACTIONS */
 .actions {
   margin-top: auto;
   display: flex;
@@ -124,7 +155,7 @@ body {
   opacity: 0.7;
 }
 
-/* PLAY BUTTON */
+/* BUTTON */
 .play-btn {
   padding: 10px 16px;
   border-radius: 12px;
@@ -132,11 +163,6 @@ body {
   background: linear-gradient(135deg, #a855f7, #7e22ce);
   color: white;
   cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.play-btn:hover {
-  transform: translateY(-2px) scale(1.05);
 }
 
 /* MODAL */
@@ -159,16 +185,6 @@ body {
   text-align: center;
   max-width: 320px;
 }
-
-.close-btn {
-  margin-top: 15px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: none;
-  background: #a855f7;
-  color: white;
-  cursor: pointer;
-}
 </style>
 </head>
 
@@ -185,12 +201,11 @@ body {
 
 <div class="grid" id="grid"></div>
 
-<!-- MODAL -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3>Want to add your server?</h3>
     <p>DM @rwor1d in Discord to add your server.</p>
-    <button class="close-btn" onclick="closeModal()">Close</button>
+    <button onclick="closeModal()">Close</button>
   </div>
 </div>
 
@@ -198,59 +213,66 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
-  authDomain: "mcspaceomega.firebaseapp.com",
-  projectId: "mcspaceomega",
-  storageBucket: "mcspaceomega.firebasestorage.app",
-  messagingSenderId: "984192110931",
-  appId: "1:984192110931:web:d7392a9815ab248c6391a6"
-};
-
-const app = initializeApp(firebaseConfig);
+const app = initializeApp({
+  apiKey: "AIzaSyD4...",
+});
 const db = getFirestore(app);
+
+/* VERIFIED USERS */
+const verifiedUsers = ["RedWorld"];
+
+/* RECOMMENDED SERVERS */
+const recommendedServers = ["M5R9X1NY"];
 
 /* SERVERS */
 let servers = [
-  { id: 1, name: "Erratic SMP", desc: "Good MultiCraft SMP with no areas, and more very cool features.", code: "M5R9X1NY" },
-  { id: 2, name: "Ronaldo Vs Messi", desc: "BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS / MANHUNT / TREASURE HUNT / BRIDGING / AXE PVP / AND MANY MORE .. ✨", code: "KAAYBNDP" },
-  { id: 3, name: "FlatWorld", desc: "Creative Server", code: "MCSRVR03" },
-  { id: 4, name: "New Types PvP", desc: "Awesome PvP server, with a lot fun features and gamemodes.", code: "JLIVC3V9" },
-  { id: 5, name: "SMP12", desc: "In here, it's your job to have fun! The world open, PVP; it's a place where you can do anything!", code: "94D92LVD" },
-  { id: 6, name: "Stone Simulator", desc: "In here, we live underground! Also, we buy items from The Shop! With currencies such as Stone, Cobblestone, and more!", code: "XX9IXQ6H" },
-  { id: 7, name: "Parkour Cubicles", desc: "In here, YOU will try to beat the impossible 36 cubicles of the server to escape!", code: "QVZACNG5" }
+  { id:1,name:"Erratic SMP",desc:"Good MultiCraft SMP...",code:"M5R9X1NY",author:"RedWorld"},
+  { id:2,name:"Ronaldo Vs Messi",desc:"BEST SERVER...",code:"KAAYBNDP",author:"Elder"},
+  { id:3,name:"FlatWorld",desc:"Creative Server",code:"MCSRVR03",author:"Unknown"},
+  { id:4,name:"New Types PvP",desc:"Awesome PvP...",code:"JLIVC3V9",author:"Unknown"},
+  { id:5,name:"SMP12",desc:"In here, it's your job...",code:"94D92LVD",author:"Jared12"},
+  { id:6,name:"Stone Simulator",desc:"We live underground...",code:"XX9IXQ6H",author:"Jared12"},
+  { id:7,name:"Parkour Cubicles",desc:"Beat 36 cubicles...",code:"QVZACNG5",author:"Jared12"}
 ];
 
-/* LOAD VISITS */
-async function loadVisits(server) {
-  const ref = doc(db, "servers", server.code);
+async function loadVisits(server){
+  const ref = doc(db,"servers",server.code);
   const snap = await getDoc(ref);
-  server.visits = snap.exists() ? (snap.data().visits || 0) : 0;
+  server.visits = snap.exists()?snap.data().visits||0:0;
 }
 
-/* INIT */
-async function init() {
+async function init(){
   await Promise.all(servers.map(loadVisits));
+  servers.sort((a,b)=>b.visits-a.visits);
 
-  servers.sort((a,b) => b.visits - a.visits);
+  const grid=document.getElementById("grid");
 
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-
-  servers.forEach(server => {
+  servers.forEach(server=>{
     const trending = server.visits >= 5;
+    const recommended = recommendedServers.includes(server.code);
+    const verified = verifiedUsers.includes(server.author);
 
-    const card = document.createElement("div");
-    card.className = "card" + (trending ? " trending" : "");
+    const card=document.createElement("div");
+    card.className="card"+
+      (trending?" trending":"")+
+      (recommended?" recommended":"");
 
-    card.innerHTML = `
+    card.innerHTML=`
+      ${trending?'<div class="badge trending">TRENDING</div>':''}
+      ${recommended?'<div class="badge recommended">RECOMMENDED</div>':''}
+
       <img class="bg" src="bg${server.id}.png" onerror="this.src='bg1.png'">
+
       <div class="content">
         <div class="title-row">
-          <img src="heart${server.id}.png" width="18" onerror="this.src='heart1.png'">
-          <div>${server.name}</div>
+          <img src="heart${server.id}.png" width="18">
+          <b>${server.name}</b>
+          <span class="author">by ${server.author}</span>
+          ${verified?'<span class="check">✔</span>':''}
         </div>
+
         <div class="desc">${server.desc}</div>
+
         <div class="actions">
           <div class="visits">${server.visits} visits</div>
           <div class="play-btn" onclick="joinServer('${server.code}')">Play</div>
@@ -262,35 +284,15 @@ async function init() {
   });
 }
 
-/* JOIN */
-window.joinServer = async function(code) {
-  const key = "lastVisit_" + code;
-  const last = localStorage.getItem(key);
-  const now = Date.now();
-
-  if (!last || now - last > 600000) {
-    const ref = doc(db, "servers", code);
-
-    try {
-      await updateDoc(ref, { visits: increment(1) });
-    } catch {
-      await setDoc(ref, { visits: 1 });
-    }
-
-    localStorage.setItem(key, now);
-  }
-
-  window.location.href = "server.html?code=" + code;
+window.joinServer = async function(code){
+  const ref = doc(db,"servers",code);
+  try{await updateDoc(ref,{visits:increment(1)});}
+  catch{await setDoc(ref,{visits:1});}
+  window.location.href="server.html?code="+code;
 };
 
-/* MODAL */
-window.openModal = () => {
-  document.getElementById("modal").style.display = "flex";
-};
-
-window.closeModal = () => {
-  document.getElementById("modal").style.display = "none";
-};
+window.openModal=()=>document.getElementById("modal").style.display="flex";
+window.closeModal=()=>document.getElementById("modal").style.display="none";
 
 init();
 </script>
