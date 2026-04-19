@@ -26,10 +26,10 @@ body {
   border-bottom:2px solid #a855f7;
 }
 
-.logo {display:flex;gap:10px;align-items:center;}
+.logo {display:flex;align-items:center;gap:10px;}
 .logo img {height:40px;}
 
-.add-btn, .play-btn {
+.add-btn {
   padding:10px 16px;
   border-radius:12px;
   border:2px solid #a855f7;
@@ -38,7 +38,7 @@ body {
   cursor:pointer;
   transition:0.25s;
 }
-.add-btn:hover, .play-btn:hover {
+.add-btn:hover {
   transform:translateY(-2px) scale(1.05);
   box-shadow:0 8px 20px rgba(168,85,247,0.4);
 }
@@ -82,22 +82,46 @@ body {
   object-fit:cover;
 }
 
-.content {padding:12px;}
-.name {font-weight:bold;}
-.author {font-size:12px;opacity:0.7;}
+.content {padding:12px;display:flex;flex-direction:column;height:100%;}
 
-.modal {
-  position:fixed;
-  inset:0;
-  display:none;
-  justify-content:center;
+.title-row {display:flex;gap:6px;align-items:center;}
+.name {font-weight:bold;word-break:break-word;}
+
+.author {
+  font-size:12px;
+  opacity:0.7;
+  margin-top:4px;
+  display:flex;
+  gap:5px;
   align-items:center;
-  background:rgba(0,0,0,0.4);
 }
-.modal-box {
-  background:white;
-  padding:25px;
-  border-radius:20px;
+
+.check {width:14px;height:14px;}
+
+.desc {
+  font-size:13px;
+  opacity:0.7;
+  margin-top:6px;
+}
+
+.actions {
+  margin-top:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.play-btn {
+  padding:8px 14px;
+  border-radius:10px;
+  border:2px solid #a855f7;
+  background:linear-gradient(135deg,#a855f7,#7e22ce);
+  color:white;
+  cursor:pointer;
+  transition:0.2s;
+}
+.play-btn:hover {
+  transform:scale(1.05);
 }
 </style>
 </head>
@@ -109,6 +133,7 @@ body {
     <img src="assets/logo.png">
     <div>MCSpace</div>
   </div>
+
   <button class="add-btn" onclick="openModal()">+ Add my server</button>
 </div>
 
@@ -117,14 +142,14 @@ body {
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3>Add your server</h3>
-    <p>DM @rwo1ld in discord to add your server.</p>
+    <p>DM @rwo1ld in discord</p>
     <button class="add-btn" onclick="closeModal()">Close</button>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
@@ -141,14 +166,15 @@ const db = getFirestore(app);
 const verifiedUsers = ["RedWorld"];
 const recommendedServers = ["M5R9X1NY"];
 
+/* ✅ ALL 7 SERVERS */
 const servers = [
-  {id:1,name:"Erratic SMP",desc:"Good MultiCraft SMP with no areas, and more very cool features.",code:"M5R9X1NY",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
-  {id:2,name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS...",code:"KAAYBNDP",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
-  {id:3,name:"FlatWorld",desc:"Creative server where you can build anything.",code:"MCSRVR03",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
-  {id:4,name:"New Types PvP",desc:"Awesome PvP server with many gamemodes.",code:"JLIVC3V9",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
-  {id:5,name:"SMP12",desc:"Open world SMP where you can do anything!",code:"94D92LVD",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
-  {id:6,name:"Stone Simulator",desc:"Mine, trade and live underground economy.",code:"XX9IXQ6H",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
-  {id:7,name:"Parkour Cubicles",desc:"Beat all 36 cubicles if you can!",code:"QVZACNG5",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
+{id:1,name:"Erratic SMP",code:"M5R9X1NY",author:"RedWorld",desc:"Good SMP",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
+{id:2,name:"Ronaldo Vs Messi",code:"KAAYBNDP",author:"Elder",desc:"PvP server",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
+{id:3,name:"FlatWorld",code:"MCSRVR03",author:"Unknown",desc:"Creative world",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
+{id:4,name:"New Types PvP",code:"JLIVC3V9",author:"Unknown",desc:"PvP modes",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
+{id:5,name:"SMP12",code:"94D92LVD",author:"Jared12",desc:"Open SMP",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
+{id:6,name:"Stone Simulator",code:"XX9IXQ6H",author:"Jared12",desc:"Mining server",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
+{id:7,name:"Parkour Cubicles",code:"QVZACNG5",author:"Jared12",desc:"Parkour challenge",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
 ];
 
 async function init(){
@@ -156,58 +182,47 @@ async function init(){
 
   for(const s of servers){
     const snap = await getDoc(doc(db,"servers",s.code));
-    const data = snap.exists()?snap.data():{};
-    s.visits = data.visits||0;
-    s.lastVisits = data.lastVisits||0;
-    s.growth = s.visits - s.lastVisits;
-  }
+    const visits = snap.exists()?snap.data().visits||0:0;
+    const last = snap.exists()?snap.data().lastVisits||0:0;
 
-  const maxGrowth = Math.max(...servers.map(s=>s.growth));
+    const growth = visits - last; // 🔥 speed-based trending
 
-  servers.forEach(s=>{
     const recommended = recommendedServers.includes(s.code);
-    const trending = !recommended && s.growth === maxGrowth && s.growth > 0;
-    const verified = verifiedUsers.includes(s.author);
+    const trending = !recommended && growth > 2;
 
-    const el=document.createElement("div");
-    el.className="card"+(recommended?" recommended":"")+(trending?" trending":"");
+    const card=document.createElement("div");
+    card.className="card"+(recommended?" recommended":"")+(trending?" trending":"");
 
-    el.innerHTML=`
+    card.innerHTML=`
       ${recommended?'<div class="badge recommended">RECOMMENDED</div>':''}
       ${trending?'<div class="badge trending">TRENDING</div>':''}
+
       <img class="bg" src="${s.bg}">
       <div class="content">
-        <div class="name">${s.name}</div>
-        <div class="author">by ${s.author} ${verified?'<img src="assets/check.png" width="12">':''}</div>
-        <div>${s.desc}</div>
-        <div class="actions">
-          <div>${s.visits}</div>
-          <div class="play-btn" onclick="joinServer('${s.code}')">Play</div>
+        <div class="title-row">
+          <img src="${s.heart}" width="18">
+          <div class="name">${s.name}</div>
         </div>
-      </div>`;
-    grid.appendChild(el);
-  });
-}
 
-window.joinServer = async code=>{
-  const ref = doc(db,"servers",code);
-  const snap = await getDoc(ref);
-  const v = snap.exists()?snap.data().visits||0:0;
+        <div class="author">
+          by ${s.author}
+          ${verifiedUsers.includes(s.author)?'<img class="check" src="assets/check.png">':''}
+        </div>
 
-  try{
-    await updateDoc(ref,{visits:increment(1),lastVisits:v});
-  }catch{
-    await setDoc(ref,{visits:1,lastVisits:0});
+        <div class="desc">${s.desc}</div>
+
+        <div class="actions">
+          <div>${visits} visits</div>
+          <div class="play-btn" onclick="location.href='server.html?code=${s.code}'">Play</div>
+        </div>
+      </div>
+    `;
+
+    grid.appendChild(card);
   }
-
-  location.href="server.html?code="+code;
-};
-
-window.openModal=()=>document.getElementById("modal").style.display="flex";
-window.closeModal=()=>document.getElementById("modal").style.display="none";
+}
 
 init();
 </script>
-
 </body>
 </html>
