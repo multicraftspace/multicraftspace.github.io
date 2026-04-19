@@ -17,143 +17,70 @@ body {
   background: radial-gradient(circle at top, #ffffff, #f3e8ff);
 }
 
-/* BACK BUTTON */
 .back {
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: 2px solid #a855f7;
-  background: linear-gradient(135deg, #a855f7, #7e22ce);
-  color: white;
-  margin: 20px;
-  cursor: pointer;
-  transition: 0.25s;
+  margin:20px;
+  padding:10px 16px;
+  background:#a855f7;
+  color:white;
+  border-radius:12px;
+  cursor:pointer;
 }
-.back:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 8px 20px rgba(168,85,247,0.4);
-}
-.back:active { transform: scale(0.9); }
 
-/* CARD */
 .card {
-  max-width: 1000px;
-  margin: auto;
-  background: white;
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 15px 40px rgba(168,85,247,0.25);
+  max-width:1000px;
+  margin:auto;
+  background:white;
+  border-radius:20px;
+  overflow:hidden;
+  position:relative;
 }
 
-.card.trending { border: 2px solid red; }
-.card.recommended { border: 2px solid cyan; }
-
-/* BADGES */
 .badge {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 12px;
-  color: white;
+  position:absolute;
+  top:10px;
+  left:10px;
+  padding:5px 10px;
+  border-radius:10px;
+  color:white;
 }
+.badge.trending {background:red;}
+.badge.recommended {background:cyan;color:black;}
 
-.badge.trending { background: red; }
-
-.badge.recommended {
-  background: linear-gradient(90deg, #00e5ff, #00ffa6);
-  color: black;
-  top: 15px;
-}
-
-/* IMAGE */
 .bg {
-  width: 100%;
-  aspect-ratio: 16/9;
-  object-fit: cover;
+  width:100%;
+  aspect-ratio:16/9;
+  object-fit:cover;
 }
 
-/* CONTENT */
-.content { padding: 25px; }
+.content {padding:20px;}
 
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+.author {opacity:0.7;}
 
-.title-row img { width: 26px; }
+.check {width:16px;}
 
-.author {
-  width: 100%;
-  font-size: 14px;
-  opacity: 0.7;
-}
-
-.check-img {
-  width: 16px;
-  height: 16px;
-}
-
-/* DESC */
-#desc {
-  margin-top: 10px;
-  opacity: 0.85;
-}
-
-/* INVITE */
-.invite {
-  display: flex;
-  margin-top: 20px;
-}
-
-.invite input {
-  flex: 1;
-  padding: 12px;
-  border: 2px solid #a855f7;
-  border-right: none;
-  border-radius: 12px 0 0 12px;
-}
-
-.invite button {
-  padding: 12px;
-  border: 2px solid #a855f7;
-  background: linear-gradient(135deg, #a855f7, #7e22ce);
-  color: white;
-  border-radius: 0 12px 12px 0;
-  cursor: pointer;
-  transition: 0.25s;
-}
-.invite button:hover {
-  transform: translateY(-2px);
-}
-.invite button:active {
-  transform: scale(0.9);
-}
+.invite {display:flex;margin-top:10px;}
+.invite input {flex:1;padding:10px;}
+.invite button {padding:10px;}
 </style>
 </head>
 
 <body>
 
-<div class="back" onclick="goBack()">← Back</div>
+<div class="back" onclick="history.back()">← Back</div>
 
 <div id="card" class="card">
   <img id="bg" class="bg">
-
   <div class="content">
-    <div class="title-row">
-      <img id="heart">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <img id="heart" width="24">
       <h2 id="name"></h2>
-      <img id="check" class="check-img" style="display:none;">
-      <div id="author" class="author"></div>
+      <img id="check" class="check" style="display:none;">
     </div>
-
+    <div id="author" class="author"></div>
     <p id="desc"></p>
 
     <div class="invite">
-      <input id="invite" readonly onclick="this.select()">
+      <input id="invite" readonly>
       <button onclick="copyCode()">Copy</button>
     </div>
   </div>
@@ -163,7 +90,6 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FULL CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
   authDomain: "mcspaceomega.firebaseapp.com",
@@ -176,77 +102,60 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const verifiedUsers = ["RedWorld"];
-const recommendedServers = ["M5R9X1NY"];
+const verifiedUsers=["RedWorld"];
+const recommendedServers=["M5R9X1NY"];
 
-/* ✅ SERVERS (WITH BG + HEART) */
-const servers = {
-  "M5R9X1NY": {name:"Erratic SMP",desc:"Good MultiCraft SMP with no areas, and more very cool features.",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
-  "KAAYBNDP": {name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌, PARKOUR / PvP / MINI GAMES...",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
-  "MCSRVR03": {name:"FlatWorld",desc:"Creative server where you can build anything you want.",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
-  "JLIVC3V9": {name:"New Types PvP",desc:"Awesome PvP server with many gamemodes.",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
-  "94D92LVD": {name:"SMP12",desc:"Open world SMP where you can do anything!",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
-  "XX9IXQ6H": {name:"Stone Simulator",desc:"Mine, trade and live underground economy.",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
-  "QVZACNG5": {name:"Parkour Cubicles",desc:"Beat all 36 cubicles if you can!",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
+const servers={
+"M5R9X1NY":{name:"Erratic SMP",desc:"Good MultiCraft SMP.",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
+"KAAYBNDP":{name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
+"MCSRVR03":{name:"FlatWorld",desc:"Creative Server",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
+"JLIVC3V9":{name:"New Types PvP",desc:"Awesome PvP",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
+"94D92LVD":{name:"SMP12",desc:"Open SMP",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
+"XX9IXQ6H":{name:"Stone Simulator",desc:"Mine & trade",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
+"QVZACNG5":{name:"Parkour Cubicles",desc:"Beat 36 cubicles!",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
 };
 
-const code = new URLSearchParams(location.search).get("code");
-const s = servers[code];
+const code=new URLSearchParams(location.search).get("code");
+const s=servers[code];
 
 if(!s){
-  name.innerText = "Server not found";
-  throw "invalid";
+  name.innerText="Server not found";
+  throw "error";
 }
 
-/* SET DATA */
-name.innerText = s.name;
-desc.innerText = s.desc;
-invite.value = code;
-author.innerText = "by " + s.author;
+name.innerText=s.name;
+desc.innerText=s.desc;
+author.innerText="by "+s.author;
+invite.value=code;
+
+bg.src=s.bg;
+heart.src=s.heart;
 
 if(verifiedUsers.includes(s.author)){
-  check.src = "assets/check.png";
-  check.style.display = "inline";
+  check.src="assets/check.png";
+  check.style.display="inline";
 }
 
-/* IMAGES */
-bg.src = s.bg;
-heart.src = s.heart;
+const snap=await getDoc(doc(db,"servers",code));
+const data=snap.exists()?snap.data():{};
+const growth=(data.visits||0)-(data.lastVisits||0);
 
-/* BADGES */
-const ref = doc(db,"servers",code);
-getDoc(ref).then(snap=>{
-  const visits = snap.exists()?snap.data().visits||0:0;
+if(recommendedServers.includes(code)){
+  add("RECOMMENDED","recommended");
+}else if(growth>0){
+  add("TRENDING","trending");
+}
 
-  if(recommendedServers.includes(code)){
-    card.classList.add("recommended");
+function add(t,c){
+  const b=document.createElement("div");
+  b.className="badge "+c;
+  b.innerText=t;
+  card.appendChild(b);
+}
 
-    const b=document.createElement("div");
-    b.className="badge recommended";
-    b.innerText="RECOMMENDED";
-    card.appendChild(b);
-  }
-  else if(visits >= 5){
-    card.classList.add("trending");
+window.copyCode=()=>navigator.clipboard.writeText(invite.value);
 
-    const b=document.createElement("div");
-    b.className="badge trending";
-    b.innerText="TRENDING";
-    card.appendChild(b);
-  }
-});
-
-/* COPY */
-window.copyCode = ()=>{
-  navigator.clipboard.writeText(invite.value);
-};
-
-/* BACK */
-window.goBack = ()=>{
-  location.href = "index.html";
-};
-
-document.title = s.name + " • MCspace";
+document.title=s.name+" • MCspace";
 </script>
 
 </body>
