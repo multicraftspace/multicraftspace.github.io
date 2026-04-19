@@ -18,7 +18,6 @@ body {
   background: radial-gradient(circle at top, #ffffff, #f3e8ff);
 }
 
-/* BUTTON */
 .back {
   padding: 10px 16px;
   border-radius: 12px;
@@ -29,7 +28,6 @@ body {
   cursor: pointer;
 }
 
-/* CARD */
 .card {
   max-width: 1000px;
   margin: auto;
@@ -43,7 +41,6 @@ body {
 .card.trending { border: 2px solid red; }
 .card.recommended { border: 2px solid cyan; }
 
-/* BADGES */
 .badge {
   position: absolute;
   top: 15px;
@@ -65,14 +62,12 @@ body {
   color: black;
 }
 
-/* IMAGE */
 .bg {
   width: 100%;
   aspect-ratio: 16/9;
   object-fit: cover;
 }
 
-/* CONTENT */
 .content {
   padding: 25px;
 }
@@ -88,26 +83,22 @@ body {
   width: 26px;
 }
 
-/* AUTHOR NEW LINE */
 .author {
   width: 100%;
   font-size: 14px;
   opacity: 0.7;
 }
 
-/* CHECK IMAGE */
 .check-img {
   width: 16px;
   height: 16px;
 }
 
-/* DESC */
 #desc {
   margin-top: 10px;
   opacity: 0.85;
 }
 
-/* INVITE */
 .invite {
   display: flex;
   margin-top: 20px;
@@ -160,7 +151,6 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ✅ FIXED FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
   authDomain: "mcspaceomega.firebaseapp.com",
@@ -173,13 +163,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* VERIFIED USERS */
 const verifiedUsers = ["RedWorld"];
 
-/* RECOMMENDED */
 const recommendedServers = ["M5R9X1NY"];
 
-/* SERVERS (FULL + CUSTOM SUPPORT) */
 const servers = {
   "M5R9X1NY": {
     id:1,
@@ -225,7 +212,6 @@ const servers = {
   }
 };
 
-/* IMAGE FALLBACK */
 function loadImage(img, base){
   const formats = ["webp","png","PNG","WEBP"];
   let i = 0;
@@ -238,7 +224,6 @@ function loadImage(img, base){
   next();
 }
 
-/* LOAD */
 const code = new URLSearchParams(location.search).get("code");
 const s = servers[code];
 
@@ -247,7 +232,6 @@ if(!s){
   throw "invalid";
 }
 
-/* ELEMENTS */
 const nameEl = document.getElementById("name");
 const descEl = document.getElementById("desc");
 const inviteEl = document.getElementById("invite");
@@ -257,26 +241,22 @@ const bgEl = document.getElementById("bg");
 const heartEl = document.getElementById("heart");
 const card = document.getElementById("card");
 
-/* TEXT */
 nameEl.innerText = s.name;
 descEl.innerText = s.desc;
 inviteEl.value = code;
 authorEl.innerText = "by " + s.author;
 
-/* CHECKMARK */
 if(verifiedUsers.includes(s.author)){
-  checkEl.src = "assets/check.png"; /* ← put image here */
+  checkEl.src = "assets/check.png"; 
   checkEl.style.display = "inline";
 }
 
-/* IMAGES */
 if(s.bg) bgEl.src = s.bg;
 else loadImage(bgEl, "bgs/bg" + s.id);
 
 if(s.heart) heartEl.src = s.heart;
 else loadImage(heartEl, "hearts/h" + s.id);
 
-/* BADGES */
 const ref = doc(db,"servers",code);
 getDoc(ref).then(snap=>{
   const visits = snap.exists()?snap.data().visits||0:0;
@@ -299,12 +279,10 @@ getDoc(ref).then(snap=>{
   }
 });
 
-/* COPY */
 window.copyCode = ()=>{
   navigator.clipboard.writeText(inviteEl.value);
 };
 
-/* BACK */
 window.goBack = ()=>{
   location.href = "index.html";
 };
