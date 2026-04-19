@@ -2,27 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loading...</title>
 
 <style>
 @font-face {
-  font-family: 'MultiCraft';
-  src: url('assets/MultiCraft.ttf');
+  font-family:'MultiCraft';
+  src:url('assets/MultiCraft.ttf');
 }
 
 body {
-  margin: 0;
-  font-family: 'MultiCraft';
-  background: radial-gradient(circle at top, #ffffff, #f3e8ff);
+  margin:0;
+  font-family:'MultiCraft';
+  background:radial-gradient(circle at top,#fff,#f3e8ff);
 }
 
 .back {
   margin:20px;
   padding:10px 16px;
+  border-radius:12px;
   background:#a855f7;
   color:white;
-  border-radius:12px;
   cursor:pointer;
 }
 
@@ -32,63 +31,59 @@ body {
   background:white;
   border-radius:20px;
   overflow:hidden;
-  position:relative;
 }
 
-.badge {
-  position:absolute;
-  top:10px;
-  left:10px;
-  padding:5px 10px;
-  border-radius:10px;
+.bg {width:100%;aspect-ratio:16/9;object-fit:cover;}
+
+.content {padding:25px;}
+
+.title-row {display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+.author {width:100%;opacity:0.7;}
+
+.invite {display:flex;margin-top:20px;}
+
+.invite input {
+  flex:1;
+  padding:10px;
+  border:2px solid #a855f7;
+}
+
+.invite button {
+  background:#a855f7;
   color:white;
+  border:none;
+  padding:10px;
+  cursor:pointer;
 }
-.badge.trending {background:red;}
-.badge.recommended {background:cyan;color:black;}
-
-.bg {
-  width:100%;
-  aspect-ratio:16/9;
-  object-fit:cover;
-}
-
-.content {padding:20px;}
-
-.author {opacity:0.7;}
-
-.check {width:16px;}
-
-.invite {display:flex;margin-top:10px;}
-.invite input {flex:1;padding:10px;}
-.invite button {padding:10px;}
 </style>
 </head>
 
 <body>
 
-<div class="back" onclick="history.back()">← Back</div>
+<div class="back" onclick="location.href='index.html'">← Back</div>
 
-<div id="card" class="card">
+<div class="card">
   <img id="bg" class="bg">
+
   <div class="content">
-    <div style="display:flex;gap:8px;align-items:center;">
-      <img id="heart" width="24">
+    <div class="title-row">
+      <img id="heart" width="26">
       <h2 id="name"></h2>
-      <img id="check" class="check" style="display:none;">
     </div>
+
     <div id="author" class="author"></div>
     <p id="desc"></p>
 
     <div class="invite">
       <input id="invite" readonly>
-      <button onclick="copyCode()">Copy</button>
+      <button onclick="copy()">Copy</button>
     </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
@@ -99,63 +94,37 @@ const firebaseConfig = {
   appId: "1:984192110931:web:d7392a9815ab248c6391a6"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+initializeApp(firebaseConfig);
 
-const verifiedUsers=["RedWorld"];
-const recommendedServers=["M5R9X1NY"];
-
+/* ✅ ALL 7 SERVERS */
 const servers={
-"M5R9X1NY":{name:"Erratic SMP",desc:"Good MultiCraft SMP.",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
-"KAAYBNDP":{name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
-"MCSRVR03":{name:"FlatWorld",desc:"Creative Server",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
-"JLIVC3V9":{name:"New Types PvP",desc:"Awesome PvP",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
-"94D92LVD":{name:"SMP12",desc:"Open SMP",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
-"XX9IXQ6H":{name:"Stone Simulator",desc:"Mine & trade",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
-"QVZACNG5":{name:"Parkour Cubicles",desc:"Beat 36 cubicles!",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
+"M5R9X1NY":{name:"Erratic SMP",author:"RedWorld",desc:"Good SMP",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
+"KAAYBNDP":{name:"Ronaldo Vs Messi",author:"Elder",desc:"PvP",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
+"MCSRVR03":{name:"FlatWorld",author:"Unknown",desc:"Creative",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
+"JLIVC3V9":{name:"New PvP",author:"Unknown",desc:"Modes",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
+"94D92LVD":{name:"SMP12",author:"Jared12",desc:"Open SMP",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
+"XX9IXQ6H":{name:"Stone Simulator",author:"Jared12",desc:"Mining",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
+"QVZACNG5":{name:"Parkour Cubicles",author:"Jared12",desc:"Parkour",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
 };
 
 const code=new URLSearchParams(location.search).get("code");
 const s=servers[code];
 
 if(!s){
-  name.innerText="Server not found";
-  throw "error";
+  document.getElementById("name").innerText="Server not found";
+}else{
+  name.innerText=s.name;
+  author.innerText="by "+s.author;
+  desc.innerText=s.desc;
+  invite.value=code;
+
+  bg.src=s.bg;
+  heart.src=s.heart;
 }
 
-name.innerText=s.name;
-desc.innerText=s.desc;
-author.innerText="by "+s.author;
-invite.value=code;
-
-bg.src=s.bg;
-heart.src=s.heart;
-
-if(verifiedUsers.includes(s.author)){
-  check.src="assets/check.png";
-  check.style.display="inline";
-}
-
-const snap=await getDoc(doc(db,"servers",code));
-const data=snap.exists()?snap.data():{};
-const growth=(data.visits||0)-(data.lastVisits||0);
-
-if(recommendedServers.includes(code)){
-  add("RECOMMENDED","recommended");
-}else if(growth>0){
-  add("TRENDING","trending");
-}
-
-function add(t,c){
-  const b=document.createElement("div");
-  b.className="badge "+c;
-  b.innerText=t;
-  card.appendChild(b);
-}
-
-window.copyCode=()=>navigator.clipboard.writeText(invite.value);
-
-document.title=s.name+" • MCspace";
+window.copy=()=>{
+  navigator.clipboard.writeText(invite.value);
+};
 </script>
 
 </body>
