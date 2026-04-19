@@ -8,7 +8,7 @@
 <style>
 @font-face {
   font-family: 'MultiCraft';
-  src: url('MultiCraft.ttf');
+  src: url('assets/MultiCraft.ttf');
 }
 
 body {
@@ -37,16 +37,6 @@ body {
   height: 40px;
 }
 
-/* ADD BUTTON */
-.add-btn {
-  padding: 10px 16px;
-  border-radius: 12px;
-  border: 2px solid #a855f7;
-  background: linear-gradient(135deg, #a855f7, #7e22ce);
-  color: white;
-  cursor: pointer;
-}
-
 /* GRID */
 .grid {
   display: grid;
@@ -67,38 +57,24 @@ body {
   position: relative;
 }
 
-/* TRENDING */
-.card.trending {
-  border: 2px solid red;
-}
-
-/* RECOMMENDED */
-.card.recommended {
-  border: 2px solid cyan;
-}
+.card.trending { border: 2px solid red; }
+.card.recommended { border: 2px solid cyan; }
 
 /* BADGES */
 .badge {
   position: absolute;
   top: 10px;
   left: 10px;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 10px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 11px;
   color: white;
 }
 
-.badge.trending {
-  background: red;
-}
-
+.badge.trending { background: red; }
 .badge.recommended {
   background: linear-gradient(90deg, #00e5ff, #00ffa6);
   color: black;
-  top: 10px;
-  left: auto;
-  right: 10px;
-  box-shadow: 0 0 10px rgba(0,229,255,0.4);
 }
 
 /* IMAGE */
@@ -120,35 +96,36 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: nowrap;
-  white-space: nowrap;
 }
 
-.title-row b {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
+/* NAME (NOT CUT) */
+.name {
+  font-weight: bold;
+  font-size: 14px;
+  word-break: break-word;
 }
 
 /* AUTHOR */
 .author {
   font-size: 12px;
   opacity: 0.7;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
+/* CHECK IMAGE */
 .check {
-  color: #00e5ff;
-  background: rgba(0,229,255,0.15);
-  border-radius: 50%;
-  padding: 2px 5px;
-  font-size: 11px;
+  width: 14px;
+  height: 14px;
 }
 
 /* DESC */
 .desc {
   font-size: 13px;
   opacity: 0.7;
-  margin-top: 5px;
+  margin-top: 6px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -168,7 +145,6 @@ body {
   opacity: 0.7;
 }
 
-/* BUTTON */
 .play-btn {
   padding: 10px 16px;
   border-radius: 12px;
@@ -205,38 +181,21 @@ body {
 
 <div class="header">
   <div class="logo">
-    <img src="logo.png">
+    <img src="assets/logo.png">
     <div>MCspace</div>
   </div>
-
-  <button class="add-btn" onclick="openModal()">+ Add my server</button>
 </div>
 
 <div class="grid" id="grid"></div>
 
-<div id="modal" class="modal">
-  <div class="modal-box">
-    <h3>Want to add your server?</h3>
-    <p>DM @rwor1d in Discord to add your server.</p>
-    <button onclick="closeModal()">Close</button>
-  </div>
-</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ✅ FIXED FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
-  authDomain: "mcspaceomega.firebaseapp.com",
-  projectId: "mcspaceomega",
-  storageBucket: "mcspaceomega.firebasestorage.app",
-  messagingSenderId: "984192110931",
-  appId: "1:984192110931:web:d7392a9815ab248c6391a6"
-};
-
-const app = initializeApp(firebaseConfig);
+/* FIREBASE */
+const app = initializeApp({
+  apiKey: "AIzaSyD4...",
+});
 const db = getFirestore(app);
 
 /* VERIFIED USERS */
@@ -247,99 +206,117 @@ const recommendedServers = ["M5R9X1NY"];
 
 /* SERVERS */
 let servers = [
-  { 
+  {
     id:1,
     name:"Erratic SMP",
     desc:"Good MultiCraft SMP with no areas, and more very cool features.",
     code:"M5R9X1NY",
-    author:"RedWorld"
+    author:"RedWorld",
+    bg:"bgs/bg1.png",
+    heart:"hearts/hpvp.png"
   },
-  { 
+  {
     id:2,
     name:"Ronaldo Vs Messi",
     desc:"BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS / MANHUNT / TREASURE HUNT / BRIDGING / AXE PVP / AND MANY MORE .. ✨",
     code:"KAAYBNDP",
-    author:"Elder"
+    author:"Elder",
+    bg:"bgs/bg2.png",
+    heart:"hearts/hpvp.png"
   },
-  { 
+  {
     id:3,
     name:"FlatWorld",
     desc:"Creative server where you can build anything you want in a flat world environment.",
     code:"MCSRVR03",
-    author:"Unknown"
+    author:"Unknown",
+    bg:"bgs/bg3.png",
+    heart:"hearts/hc.png"
   },
-  { 
+  {
     id:4,
     name:"New Types PvP",
     desc:"Awesome PvP server with a lot of fun features and different gamemodes to try.",
     code:"JLIVC3V9",
-    author:"Unknown"
+    author:"Unknown",
+    bg:"bgs/bg4.png",
+    heart:"hearts/hpvp.png"
   },
-  { 
+  {
     id:5,
     name:"SMP12",
     desc:"In here, it's your job to have fun! The world is open, PvP is enabled, and it's a place where you can do anything!",
     code:"94D92LVD",
-    author:"Jared12"
+    author:"Jared12",
+    bg:"bgs/bg5.png",
+    heart:"hearts/hpvp.png"
   },
-  { 
+  {
     id:6,
     name:"Stone Simulator",
     desc:"In here, we live underground! You can mine, trade, and buy items from the shop using currencies like Stone, Cobblestone, and more.",
     code:"XX9IXQ6H",
-    author:"Jared12"
+    author:"Jared12",
+    bg:"bgs/bg6.png",
+    heart:"hearts/hpvp.png"
   },
-  { 
+  {
     id:7,
     name:"Parkour Cubicles",
     desc:"Try to beat all 36 challenging cubicles in this parkour server and escape if you can!",
     code:"QVZACNG5",
-    author:"Jared12"
+    author:"Jared12",
+    bg:"bgs/bg7.png",
+    heart:"hearts/hpvp.png"
   }
 ];
 
+/* LOAD VISITS */
 async function loadVisits(server){
-  const ref = doc(db,"servers",server.code);
-  const snap = await getDoc(ref);
+  const snap = await getDoc(doc(db,"servers",server.code));
   server.visits = snap.exists()?snap.data().visits||0:0;
 }
 
+/* INIT */
 async function init(){
   await Promise.all(servers.map(loadVisits));
   servers.sort((a,b)=>b.visits-a.visits);
 
   const grid=document.getElementById("grid");
-  grid.innerHTML = "";
+  grid.innerHTML="";
 
   servers.forEach(server=>{
-    const trending = server.visits >= 5;
     const recommended = recommendedServers.includes(server.code);
+    const trending = !recommended && server.visits >= 5;
     const verified = verifiedUsers.includes(server.author);
 
     const card=document.createElement("div");
     card.className="card"+
-      (trending?" trending":"")+
-      (recommended?" recommended":"");
+      (recommended?" recommended":"")+
+      (trending?" trending":"");
 
     card.innerHTML=`
-      ${trending?'<div class="badge trending">TRENDING</div>':''}
       ${recommended?'<div class="badge recommended">RECOMMENDED</div>':''}
+      ${trending?'<div class="badge trending">TRENDING</div>':''}
 
-      <img class="bg" src="bg${server.id}.png" onerror="this.src='bg1.png'">
+      <img class="bg" src="${server.bg}" onerror="this.src='bgs/bg1.webp'">
 
       <div class="content">
         <div class="title-row">
-          <img src="heart${server.id}.png" width="18" onerror="this.src='heart1.png'">
-          <b>${server.name}</b>
-          <span class="author">by ${server.author}</span>
-          ${verified?'<span class="check">✔</span>':''}
+          <img src="${server.heart}" width="18" onerror="this.src='hearts/heart1.webp'">
+          <div class="name">${server.name}</div>
+        </div>
+
+        <div class="author">
+          by ${server.author}
+          ${verified?'<img class="check" src="assets/check.png">':''}
         </div>
 
         <div class="desc">${server.desc}</div>
 
         <div class="actions">
           <div class="visits">${server.visits} visits</div>
-          <div class="play-btn" onclick="joinServer('${server.code}')">Play</div>
+          <div class="play-btn" onclick="location.href='server.html?code=${server.code}'">Play</div>
         </div>
       </div>
     `;
@@ -348,15 +325,8 @@ async function init(){
   });
 }
 
-window.joinServer = async function(code){
-  const ref = doc(db,"servers",code);
-  try{await updateDoc(ref,{visits:increment(1)});}
-  catch{await setDoc(ref,{visits:1});}
-  window.location.href="server.html?code="+code;
-};
-
-window.openModal=()=>document.getElementById("modal").style.display="flex";
-window.closeModal=()=>document.getElementById("modal").style.display="none";
-
 init();
 </script>
+
+</body>
+</html>
