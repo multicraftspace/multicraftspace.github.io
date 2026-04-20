@@ -17,7 +17,7 @@ body {
   background: radial-gradient(circle at top,#ffffff,#f3e8ff);
 }
 
-.back, .copy-btn {
+.back,.copy-btn{
   padding:10px 16px;
   border-radius:12px;
   border:2px solid #a855f7;
@@ -27,7 +27,7 @@ body {
   margin:20px;
 }
 
-.card {
+.card{
   max-width:900px;
   margin:auto;
   background:white;
@@ -36,23 +36,23 @@ body {
   box-shadow:0 15px 40px rgba(168,85,247,0.25);
 }
 
-.bg {
+.bg{
   width:100%;
   aspect-ratio:16/9;
   object-fit:cover;
 }
 
-.content { padding:25px; }
+.content{padding:25px;}
 
-.title-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.title-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
 
-.author { width:100%; opacity:0.7; }
+.author{width:100%;opacity:0.7;}
 
-.check { width:16px; }
+.check{width:16px;}
 
-.invite { display:flex; margin-top:20px; }
+.invite{display:flex;margin-top:20px;}
 
-.invite input {
+.invite input{
   flex:1;
   padding:12px;
   border:2px solid #a855f7;
@@ -60,7 +60,7 @@ body {
   border-radius:12px 0 0 12px;
 }
 
-.copy-btn {
+.copy-btn{
   border-radius:0 12px 12px 0;
 }
 </style>
@@ -72,7 +72,6 @@ body {
 
 <div class="card">
   <img id="bg" class="bg">
-
   <div class="content">
     <div class="title-row">
       <img id="heart" width="24">
@@ -92,55 +91,51 @@ body {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
-  authDomain: "mcspaceomega.firebaseapp.com",
-  projectId: "mcspaceomega",
-  storageBucket: "mcspaceomega.firebasestorage.app",
-  messagingSenderId: "984192110931",
-  appId: "1:984192110931:web:d7392a9815ab248c6391a6"
+const firebaseConfig={
+  apiKey:"AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
+  authDomain:"mcspaceomega.firebaseapp.com",
+  projectId:"mcspaceomega",
+  storageBucket:"mcspaceomega.firebasestorage.app",
+  messagingSenderId:"984192110931",
+  appId:"1:984192110931:web:d7392a9815ab248c6391a6"
 };
 
 initializeApp(firebaseConfig);
-getFirestore();
 
-const servers = {
-"M5R9X1NY":{name:"Erratic SMP",desc:"A high-quality MultiCraft survival server with no protected areas. Explore freely, build anything, and enjoy custom features designed to improve gameplay.",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
-"KAAYBNDP":{name:"Ronaldo Vs Messi",desc:"Competitive server with parkour, PvP and minigames.",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
-"MCSRVR03":{name:"FlatWorld",desc:"Creative flat world for building anything.",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
-"JLIVC3V9":{name:"New Types PvP",desc:"Custom PvP mechanics and gamemodes.",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
-"94D92LVD":{name:"SMP12",desc:"Open survival world with PvP.",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
-"XX9IXQ6H":{name:"Stone Simulator",desc:"Mine and trade underground.",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
-"QVZACNG5":{name:"Parkour Cubicles",desc:"36 parkour challenges.",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
+const servers={
+"M5R9X1NY":{name:"Erratic SMP",desc:"Good MultiCraft SMP with no areas, and more very cool features.",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
+"KAAYBNDP":{name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS / MANHUNT / TREASURE HUNT / BRIDGING / AXE PVP / AND MANY MORE .. ✨",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
+"MCSRVR03":{name:"FlatWorld",desc:"Creative Server",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
+"JLIVC3V9":{name:"New Types PvP",desc:"Awesome PvP server, with a lot fun features and gamemodes.",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
+"94D92LVD":{name:"SMP12",desc:"In here, it's your job to have fun! The world open, PVP; it's a place where you can do anything!",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
+"XX9IXQ6H":{name:"Stone Simulator",desc:"In here, we live underground! Also, we buy items from The Shop! With currencies such as Stone, Cobblestone, and more!",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
+"QVZACNG5":{name:"Parkour Cubicles",desc:"In here, YOU will try to beat the impossible 36 cubicles of the server to escape!",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
 };
 
-const code = new URLSearchParams(location.search).get("code");
-const s = servers[code];
+const code=new URLSearchParams(location.search).get("code");
+const s=servers[code];
 
 if(!s){
   document.getElementById("name").innerText="Server not found";
 } else {
-  name.innerText = s.name;
-  desc.innerText = s.desc;
-  author.innerText = "by " + s.author;
-  invite.value = code;
+  name.innerText=s.name;
+  desc.innerText=s.desc;
+  author.innerText="by "+s.author;
+  invite.value=code;
 
-  bg.src = s.bg;
-  heart.src = s.heart;
+  bg.src=s.bg;
+  heart.src=s.heart;
 
   if(s.author==="RedWorld"){
     check.src="assets/check.png";
     check.style.display="inline";
   }
 
-  document.title = s.name + " • MCspace";
+  document.title=s.name+" • MCspace";
 }
 
-window.copyCode=()=>{
-  navigator.clipboard.writeText(invite.value);
-};
+window.copyCode=()=>navigator.clipboard.writeText(invite.value);
 </script>
 
 </body>
