@@ -2,60 +2,66 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=https://multicraftspace.github.io/c.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loading...</title>
 
 <style>
 @font-face {
-  font-family:'MultiCraft';
-  src:url('assets/MultiCraft.ttf');
+  font-family: 'MultiCraft';
+  src: url('assets/MultiCraft.ttf');
 }
 
 body {
   margin:0;
   font-family:'MultiCraft';
-  background:radial-gradient(circle at top,#fff,#f3e8ff);
+  background: radial-gradient(circle at top,#ffffff,#f3e8ff);
 }
 
-.back {
-  margin:20px;
+.back, .copy-btn {
   padding:10px 16px;
   border-radius:12px;
-  background:#a855f7;
+  border:2px solid #a855f7;
+  background:linear-gradient(135deg,#a855f7,#7e22ce);
   color:white;
   cursor:pointer;
+  margin:20px;
 }
 
 .card {
-  max-width:1000px;
+  max-width:900px;
   margin:auto;
   background:white;
   border-radius:20px;
   overflow:hidden;
+  box-shadow:0 15px 40px rgba(168,85,247,0.25);
 }
 
-.bg {width:100%;aspect-ratio:16/9;object-fit:cover;}
+.bg {
+  width:100%;
+  aspect-ratio:16/9;
+  object-fit:cover;
+}
 
-.content {padding:25px;}
+.content { padding:25px; }
 
-.title-row {display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.title-row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
 
-.author {width:100%;opacity:0.7;}
+.author { width:100%; opacity:0.7; }
 
-.invite {display:flex;margin-top:20px;}
+.check { width:16px; }
+
+.invite { display:flex; margin-top:20px; }
 
 .invite input {
   flex:1;
-  padding:10px;
+  padding:12px;
   border:2px solid #a855f7;
+  border-right:none;
+  border-radius:12px 0 0 12px;
 }
 
-.invite button {
-  background:#a855f7;
-  color:white;
-  border:none;
-  padding:10px;
-  cursor:pointer;
+.copy-btn {
+  border-radius:0 12px 12px 0;
 }
 </style>
 </head>
@@ -69,22 +75,24 @@ body {
 
   <div class="content">
     <div class="title-row">
-      <img id="heart" width="26">
+      <img id="heart" width="24">
       <h2 id="name"></h2>
+      <img id="check" class="check" style="display:none;">
+      <div id="author" class="author"></div>
     </div>
 
-    <div id="author" class="author"></div>
     <p id="desc"></p>
 
     <div class="invite">
       <input id="invite" readonly>
-      <button onclick="copy()">Copy</button>
+      <button class="copy-btn" onclick="copyCode()">Copy</button>
     </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
@@ -96,34 +104,41 @@ const firebaseConfig = {
 };
 
 initializeApp(firebaseConfig);
+getFirestore();
 
-/* ✅ ALL 7 SERVERS */
-const servers={
-"M5R9X1NY":{name:"Erratic SMP",author:"RedWorld",desc:"Good SMP",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
-"KAAYBNDP":{name:"Ronaldo Vs Messi",author:"Elder",desc:"PvP",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
-"MCSRVR03":{name:"FlatWorld",author:"Unknown",desc:"Creative",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
-"JLIVC3V9":{name:"New PvP",author:"Unknown",desc:"Modes",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
-"94D92LVD":{name:"SMP12",author:"Jared12",desc:"Open SMP",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
-"XX9IXQ6H":{name:"Stone Simulator",author:"Jared12",desc:"Mining",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
-"QVZACNG5":{name:"Parkour Cubicles",author:"Jared12",desc:"Parkour",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
+const servers = {
+"M5R9X1NY":{name:"Erratic SMP",desc:"A high-quality MultiCraft survival server with no protected areas. Explore freely, build anything, and enjoy custom features designed to improve gameplay.",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
+"KAAYBNDP":{name:"Ronaldo Vs Messi",desc:"Competitive server with parkour, PvP and minigames.",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
+"MCSRVR03":{name:"FlatWorld",desc:"Creative flat world for building anything.",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
+"JLIVC3V9":{name:"New Types PvP",desc:"Custom PvP mechanics and gamemodes.",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
+"94D92LVD":{name:"SMP12",desc:"Open survival world with PvP.",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
+"XX9IXQ6H":{name:"Stone Simulator",desc:"Mine and trade underground.",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
+"QVZACNG5":{name:"Parkour Cubicles",desc:"36 parkour challenges.",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
 };
 
-const code=new URLSearchParams(location.search).get("code");
-const s=servers[code];
+const code = new URLSearchParams(location.search).get("code");
+const s = servers[code];
 
 if(!s){
   document.getElementById("name").innerText="Server not found";
-}else{
-  name.innerText=s.name;
-  author.innerText="by "+s.author;
-  desc.innerText=s.desc;
-  invite.value=code;
+} else {
+  name.innerText = s.name;
+  desc.innerText = s.desc;
+  author.innerText = "by " + s.author;
+  invite.value = code;
 
-  bg.src=s.bg;
-  heart.src=s.heart;
+  bg.src = s.bg;
+  heart.src = s.heart;
+
+  if(s.author==="RedWorld"){
+    check.src="assets/check.png";
+    check.style.display="inline";
+  }
+
+  document.title = s.name + " • MCspace";
 }
 
-window.copy=()=>{
+window.copyCode=()=>{
   navigator.clipboard.writeText(invite.value);
 };
 </script>
