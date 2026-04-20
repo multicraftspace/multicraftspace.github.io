@@ -102,17 +102,23 @@ body {
   </div>
 </div>
 
-<script>
-const servers = {
-"M5R9X1NY": {name:"Erratic SMP",desc:"Good MultiCraft SMP with no areas, and more very cool features.",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
-"KAAYBNDP": {name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS / MANHUNT / TREASURE HUNT / BRIDGING / AXE PVP / AND MANY MORE .. ✨",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
-"MCSRVR03": {name:"FlatWorld",desc:"Creative Server",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
-"JLIVC3V9": {name:"New Types PvP",desc:"Awesome PvP server, with a lot fun features and gamemodes.",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
-"94D92LVD": {name:"SMP12",desc:"In here, it's your job to have fun!",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
-"XX9IXQ6H": {name:"Stone Simulator",desc:"We live underground and trade items!",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
-"QVZACNG5": {name:"Parkour Cubicles",desc:"Try to beat all 36 cubicles!",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
+  authDomain: "mcspaceomega.firebaseapp.com",
+  projectId: "mcspaceomega",
+  storageBucket: "mcspaceomega.firebasestorage.app",
+  messagingSenderId: "984192110931",
+  appId: "1:984192110931:web:d7392a9815ab248c6391a6"
 };
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// elements
 const nameEl = document.getElementById("name");
 const descEl = document.getElementById("desc");
 const authorEl = document.getElementById("author");
@@ -121,34 +127,54 @@ const bgEl = document.getElementById("bg");
 const heartEl = document.getElementById("heart");
 const checkEl = document.getElementById("check");
 
+// get code from URL
 const code = new URLSearchParams(window.location.search).get("code");
-const server = servers[code];
 
-if (!server) {
-  nameEl.innerText = "Server not found";
-  descEl.innerText = "Invalid or missing code.";
+if (!code) {
+  nameEl.innerText = "No code provided";
 } else {
-  nameEl.innerText = server.name;
-  descEl.innerText = server.desc;
-  authorEl.innerText = "by " + server.author;
-  inviteEl.value = code;
-
-  bgEl.src = server.bg;
-  heartEl.src = server.heart;
-
-  if (server.author === "RedWorld") {
-    checkEl.src = "assets/check.png";
-    checkEl.style.display = "inline";
-  }
-
-  document.title = server.name + " • MCspace";
+  loadServer(code);
 }
 
-function copyCode() {
+async function loadServer(code) {
+  try {
+    const ref = doc(db, "servers", code);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      nameEl.innerText = "Server not found";
+      descEl.innerText = "Invalid code.";
+      return;
+    }
+
+    const server = snap.data();
+
+    nameEl.innerText = server.name;
+    descEl.innerText = server.desc;
+    authorEl.innerText = "by " + server.author;
+    inviteEl.value = code;
+
+    bgEl.src = server.bg;
+    heartEl.src = server.heart;
+
+    if (server.author === "RedWorld") {
+      checkEl.src = "assets/check.png";
+      checkEl.style.display = "inline";
+    }
+
+    document.title = server.name + " • MCspace";
+
+  } catch (err) {
+    console.error(err);
+    nameEl.innerText = "Error loading server";
+  }
+}
+
+window.copyCode = function () {
   navigator.clipboard.writeText(inviteEl.value)
     .then(() => alert("Copied!"))
     .catch(() => alert("Failed to copy"));
-}
+};
 </script>
 
 </body>
