@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MCspace</title>
+<title>Loading...</title>
 
 <style>
 @font-face {
@@ -13,12 +13,12 @@
 
 body{
   margin:0;
-  font-family:'MultiCraft',sans-serif;
+  font-family:'MultiCraft';
   background: radial-gradient(circle at top,#ffffff,#f3e8ff);
 }
 
-/* BACK BUTTON */
-.back{
+/* BUTTON */
+.btn{
   margin:20px;
   padding:10px 16px;
   border-radius:12px;
@@ -27,13 +27,8 @@ body{
   color:white;
   cursor:pointer;
   transition:0.25s;
-  display:inline-block;
 }
-.back:hover{
-  transform:translateY(-2px) scale(1.05);
-  box-shadow:0 8px 20px rgba(168,85,247,0.4);
-}
-.back:active{transform:scale(0.9);}
+.btn:hover{transform:scale(1.05);}
 
 /* CARD */
 .card{
@@ -43,47 +38,19 @@ body{
   border-radius:20px;
   overflow:hidden;
   box-shadow:0 15px 40px rgba(168,85,247,0.25);
-  animation:fadeIn 0.4s ease;
 }
 
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(10px);}
-  to{opacity:1; transform:translateY(0);}
-}
-
-.bg{
-  width:100%;
-  aspect-ratio:16/9;
-  object-fit:cover;
-}
-
+.bg{width:100%;aspect-ratio:16/9;object-fit:cover;}
 .content{padding:25px;}
 
-.title-row{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
 .author{
-  width:100%;
+  margin-top:5px;
   opacity:0.7;
-  font-size:14px;
-}
-
-.check{width:16px;}
-
-/* INVITE */
-.invite-label{
-  margin-top:20px;
-  opacity:0.7;
-  font-size:14px;
 }
 
 .invite{
   display:flex;
-  margin-top:6px;
+  margin-top:20px;
 }
 
 .invite input{
@@ -92,168 +59,65 @@ body{
   border:2px solid #a855f7;
   border-right:none;
   border-radius:12px 0 0 12px;
-  outline:none;
-  font-family:'MultiCraft';
 }
 
-/* COPY BUTTON FIX */
 .copy-btn{
-  padding:12px 16px;
   border-radius:0 12px 12px 0;
   border:2px solid #a855f7;
-  background:linear-gradient(135deg,#a855f7,#7e22ce);
+  background:#a855f7;
   color:white;
   cursor:pointer;
-  transition:0.25s;
-}
-.copy-btn:hover{
-  transform:scale(1.05);
-}
-.copy-btn:active{
-  transform:scale(0.9);
 }
 </style>
 </head>
 
 <body>
 
-<div class="back" onclick="location.href='index.html'">← Back</div>
+<div class="btn" onclick="location.href='index.html'">← Back</div>
 
 <div class="card">
   <img id="bg" class="bg">
   <div class="content">
 
-    <div class="title-row">
-      <img id="heart" width="24">
-      <h2 id="name">Loading...</h2>
-      <img id="check" class="check" style="display:none;">
-      <div id="author"></div>
-    </div>
+    <h2 id="name"></h2>
+    <div id="author" class="author"></div>
 
     <p id="desc"></p>
 
-    <div class="invite-label">Invite Code</div>
-
     <div class="invite">
-      <input id="invite" readonly onclick="this.select()">
+      <input id="invite" readonly>
       <button class="copy-btn" onclick="copyCode()">Copy</button>
     </div>
 
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
-  authDomain: "mcspaceomega.firebaseapp.com",
-  projectId: "mcspaceomega",
-  storageBucket: "mcspaceomega.firebasestorage.app",
-  messagingSenderId: "984192110931",
-  appId: "1:984192110931:web:d7392a9815ab248c6391a6"
+<script>
+const servers={
+"M5R9X1NY":{name:"Erratic SMP",desc:"Good MultiCraft SMP with no areas, survival gameplay, active players, and many cool features to explore with friends.",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
+"KAAYBNDP":{name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌 Includes parkour, PvP, minigames, BedWars, Manhunt, treasure hunt, bridging, axe PvP, and many more fun modes.",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
+"MCSRVR03":{name:"FlatWorld",desc:"Creative server where you can freely build anything in a flat world environment without limits.",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
+"JLIVC3V9":{name:"New Types PvP",desc:"Awesome PvP server with many fun features, unique combat styles, and different gamemodes to enjoy.",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
+"94D92LVD":{name:"SMP12",desc:"Open world SMP where you can explore, fight, build, and do anything you want with PvP enabled.",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
+"XX9IXQ6H":{name:"Stone Simulator",desc:"Underground survival server with economy. Mine stone, trade resources, and progress through a unique system.",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
+"QVZACNG5":{name:"Parkour Cubicles",desc:"Challenge yourself by completing 36 difficult parkour cubicles and try to escape the impossible map.",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const code=new URLSearchParams(location.search).get("code");
+const s=servers[code];
 
-/* FULL SERVER DATA */
-const servers = {
-  "M5R9X1NY": {
-    name:"Erratic SMP",
-    desc:"Good MultiCraft SMP with survival gameplay, no restrictions, active community and fun exploration.",
-    author:"RedWorld",
-    bg:"bgs/bg1.png",
-    heart:"hearts/hpvp.png"
-  },
-  "KAAYBNDP": {
-    name:"Ronaldo Vs Messi",
-    desc:"BEST SERVER 👌 Parkour, PvP, BedWars, Manhunt, Bridging, Axe PvP and many more gamemodes.",
-    author:"Elder",
-    bg:"bgs/bg2.png",
-    heart:"hearts/hpvp.png"
-  },
-  "MCSRVR03": {
-    name:"FlatWorld",
-    desc:"Creative sandbox server where you can build anything in a flat world without limits.",
-    author:"Unknown",
-    bg:"bgs/bg3.png",
-    heart:"hearts/hc.png"
-  },
-  "JLIVC3V9": {
-    name:"New Types PvP",
-    desc:"Unique PvP server with custom combat styles and multiple fun competitive modes.",
-    author:"Unknown",
-    bg:"bgs/bg4.png",
-    heart:"hearts/hpvp.png"
-  },
-  "94D92LVD": {
-    name:"SMP12",
-    desc:"Open survival SMP where you can build, fight, explore and play freely with others.",
-    author:"Jared12",
-    bg:"bgs/bg5.png",
-    heart:"hearts/hpvp.png"
-  },
-  "XX9IXQ6H": {
-    name:"Stone Simulator",
-    desc:"Underground economy server: mine stone, trade resources and progress through systems.",
-    author:"Jared12",
-    bg:"bgs/bg6.png",
-    heart:"hearts/hpvp.png"
-  },
-  "QVZACNG5": {
-    name:"Parkour Cubicles",
-    desc:"Try to complete 36 impossible parkour challenges and escape the cube world.",
-    author:"Jared12",
-    bg:"bgs/bg7.png",
-    heart:"hearts/hpvp.png"
-  }
-};
+document.getElementById("invite").value=code;
 
-const verifiedUsers=["RedWorld"];
-
-const code = new URLSearchParams(location.search).get("code");
-const s = servers[code];
-
-const nameEl=document.getElementById("name");
-const descEl=document.getElementById("desc");
-const authorEl=document.getElementById("author");
-const inviteEl=document.getElementById("invite");
-const bgEl=document.getElementById("bg");
-const heartEl=document.getElementById("heart");
-const checkEl=document.getElementById("check");
-
-if(!s){
-  nameEl.innerText="Server not found";
-  descEl.innerText="Invalid code.";
-} else {
-  load();
-}
-
-function load(){
-  nameEl.innerText=s.name;
-  descEl.innerText=s.desc;
-  authorEl.innerText="by "+s.author;
-  inviteEl.value=code;
-
-  bgEl.src=s.bg;
-  heartEl.src=s.heart;
-
-  if(verifiedUsers.includes(s.author)){
-    checkEl.src="assets/check.png";
-    checkEl.style.display="inline";
-  }
-
+if(s){
+  document.getElementById("name").innerText=s.name;
+  document.getElementById("desc").innerText=s.desc;
+  document.getElementById("author").innerText="by "+s.author;
+  document.getElementById("bg").src=s.bg;
   document.title=s.name+" • MCspace";
 }
 
-/* COPY FIX */
-window.copyCode=function(){
-  navigator.clipboard.writeText(inviteEl.value);
-  const btn=document.querySelector(".copy-btn");
-  btn.innerText="Copied!";
-  setTimeout(()=>btn.innerText="Copy",1200);
+window.copyCode=()=>{
+  navigator.clipboard.writeText(code);
 };
 </script>
 
