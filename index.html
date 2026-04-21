@@ -217,6 +217,18 @@ async function loadVisits(s){
   s.growth=s.visits-s.lastVisits;
 }
 
+// HANDLE HASH ROUTING (mtcspace.com/#/CODE)
+const hash = window.location.hash;
+
+if (hash.startsWith("#/")) {
+  const code = hash.replace("#/", "").trim();
+
+  if (code) {
+    // redirect to server page
+    window.location.href = "server.html?code=" + code;
+  }
+}
+
 async function init(){
   await Promise.all(servers.map(loadVisits));
 
