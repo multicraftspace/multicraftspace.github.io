@@ -11,14 +11,14 @@
   src: url('assets/MultiCraft.ttf');
 }
 
-body {
+body{
   margin:0;
   font-family:'MultiCraft', sans-serif;
   background: radial-gradient(circle at top,#ffffff,#f3e8ff);
 }
 
 /* BUTTONS */
-.back,.copy-btn{
+.back,.copy-btn,.fav-btn{
   padding:10px 16px;
   border-radius:12px;
   border:2px solid #a855f7;
@@ -28,16 +28,14 @@ body {
   transition:0.25s;
 }
 
-.back{
-  margin:20px;
-}
+.back{ margin:20px; }
 
-.back:hover,.copy-btn:hover{
+.back:hover,.copy-btn:hover,.fav-btn:hover{
   transform:translateY(-2px) scale(1.05);
   box-shadow:0 8px 20px rgba(168,85,247,0.4);
 }
 
-.back:active,.copy-btn:active{
+.back:active,.copy-btn:active,.fav-btn:active{
   transform:scale(0.9);
 }
 
@@ -49,15 +47,21 @@ body {
   border-radius:20px;
   overflow:hidden;
   box-shadow:0 15px 40px rgba(168,85,247,0.25);
+  transition:0.3s;
+}
+.card:hover{
+  box-shadow:0 0 25px rgba(168,85,247,0.6);
 }
 
+/* IMAGE */
 .bg{
   width:100%;
   aspect-ratio:16/9;
   object-fit:cover;
 }
 
-.content{padding:25px;}
+/* CONTENT */
+.content{ padding:25px; }
 
 .title-row{
   display:flex;
@@ -71,8 +75,11 @@ body {
   opacity:0.7;
 }
 
-.check{
-  width:16px;
+.check{ width:16px; }
+
+/* FAVORITE BUTTON */
+.fav-btn{
+  margin-top:10px;
 }
 
 /* INVITE */
@@ -105,7 +112,8 @@ body {
 
 <body>
 
-<div class="back" onclick="location.href='/'"← Back</div>
+<!-- ✅ FIXED BUTTON -->
+<div class="back" onclick="location.href='index.html'">← Back</div>
 
 <div class="card">
   <img id="bg" class="bg">
@@ -120,6 +128,8 @@ body {
 
     <p id="desc"></p>
 
+    <button class="fav-btn" onclick="toggleFavorite()">⭐ Add to Favorites</button>
+
     <div class="invite-label">Invite Code</div>
 
     <div class="invite">
@@ -133,6 +143,7 @@ body {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
   authDomain: "mcspaceomega.firebaseapp.com",
@@ -145,62 +156,24 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* LOCAL SERVER DATA (FULL, FIXED) */
+/* SERVERS */
 const servers = {
-  "M5R9X1NY": {
-    name:"Erratic SMP",
-    desc:"Good MultiCraft SMP with no areas, survival gameplay, active players, and many cool features to explore with friends.",
-    author:"RedWorld",
-    bg:"bgs/bg1.png",
-    heart:"hearts/hpvp.png"
-  },
-  "KAAYBNDP": {
-    name:"Ronaldo Vs Messi",
-    desc:"BEST SERVER 👌 Includes parkour, PvP, minigames, BedWars, Manhunt, treasure hunt, bridging, axe PvP, and many more fun modes.",
-    author:"Elder",
-    bg:"bgs/bg2.png",
-    heart:"hearts/hpvp.png"
-  },
-  "MCSRVR03": {
-    name:"FlatWorld",
-    desc:"Creative server where you can freely build anything in a flat world environment without limits.",
-    author:"Unknown",
-    bg:"bgs/bg3.png",
-    heart:"hearts/hc.png"
-  },
-  "JLIVC3V9": {
-    name:"New Types PvP",
-    desc:"Awesome PvP server with many fun features, unique combat styles, and different gamemodes to enjoy.",
-    author:"Unknown",
-    bg:"bgs/bg4.png",
-    heart:"hearts/hpvp.png"
-  },
-  "94D92LVD": {
-    name:"SMP12",
-    desc:"Open world SMP where you can explore, fight, build, and do anything you want with PvP enabled.",
-    author:"Jared12",
-    bg:"bgs/bg5.png",
-    heart:"hearts/hpvp.png"
-  },
-  "XX9IXQ6H": {
-    name:"Stone Simulator",
-    desc:"Underground survival server with economy. Mine stone, trade resources, and progress through a unique system.",
-    author:"Jared12",
-    bg:"bgs/bg6.png",
-    heart:"hearts/hpvp.png"
-  },
-  "QVZACNG5": {
-    name:"Parkour Cubicles",
-    desc:"Challenge yourself by completing 36 difficult parkour cubicles and try to escape the impossible map.",
-    author:"Jared12",
-    bg:"bgs/bg7.png",
-    heart:"hearts/hpvp.png"
-  }
+  "M5R9X1NY": {name:"Erratic SMP",desc:"Good MultiCraft SMP with no areas, survival gameplay, active players, and many cool features to explore with friends.",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
+  "KAAYBNDP": {name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌 Includes parkour, PvP, minigames, BedWars, Manhunt, treasure hunt, bridging, axe PvP, and many more fun modes.",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
+  "MCSRVR03": {name:"FlatWorld",desc:"Creative server where you can freely build anything in a flat world environment without limits.",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
+  "JLIVC3V9": {name:"New Types PvP",desc:"Awesome PvP server with many fun features, unique combat styles, and different gamemodes to enjoy.",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
+  "94D92LVD": {name:"SMP12",desc:"Open world SMP where you can explore, fight, build, and do anything you want with PvP enabled.",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
+  "XX9IXQ6H": {name:"Stone Simulator",desc:"Underground survival server with economy. Mine stone, trade resources, and progress through a unique system.",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
+  "QVZACNG5": {name:"Parkour Cubicles",desc:"Challenge yourself by completing 36 difficult parkour cubicles and try to escape the impossible map.",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
 };
 
 const verifiedUsers = ["RedWorld"];
 
-// elements
+/* GET CODE (supports both ?code= and #/) */
+const params = new URLSearchParams(location.search);
+let code = params.get("code") || location.hash.replace("#/","");
+
+/* ELEMENTS */
 const nameEl = document.getElementById("name");
 const descEl = document.getElementById("desc");
 const authorEl = document.getElementById("author");
@@ -208,16 +181,13 @@ const inviteEl = document.getElementById("invite");
 const bgEl = document.getElementById("bg");
 const heartEl = document.getElementById("heart");
 const checkEl = document.getElementById("check");
+const favBtn = document.querySelector(".fav-btn");
 
-// get code
-const code = location.hash.replace("#/", "");
-const s = servers[code];
-
-if(!s){
-  nameEl.innerText = "Server not found";
-  descEl.innerText = "Invalid invite code.";
-} else {
-  loadServer(s);
+/* LOAD */
+if(!servers[code]){
+  nameEl.innerText="Server not found";
+}else{
+  loadServer(servers[code]);
 }
 
 async function loadServer(s){
@@ -230,29 +200,48 @@ async function loadServer(s){
   heartEl.src = s.heart;
 
   if(verifiedUsers.includes(s.author)){
-    checkEl.src = "assets/check.png";
-    checkEl.style.display = "inline";
+    checkEl.src="assets/check.png";
+    checkEl.style.display="inline";
   }
 
   document.title = s.name + " • MCspace";
 
-  // optional: fetch visits (doesn't break UI if fails)
+  updateFavButton();
+
   try{
     const snap = await getDoc(doc(db,"servers",code));
-    if(snap.exists()){
-      const visits = snap.data().visits || 0;
-      console.log("Visits:", visits);
-    }
-  }catch(e){
-    console.warn("Visits load failed");
-  }
+    console.log("Visits:", snap.exists()?snap.data().visits:0);
+  }catch{}
 }
 
-/* COPY BUTTON (clean) */
+/* FAVORITES */
+function getFavorites(){
+  return JSON.parse(localStorage.getItem("favorites")||"[]");
+}
+
+function toggleFavorite(){
+  let favs = getFavorites();
+
+  if(favs.includes(code)){
+    favs = favs.filter(c=>c!==code);
+  }else{
+    favs.push(code);
+  }
+
+  localStorage.setItem("favorites", JSON.stringify(favs));
+  updateFavButton();
+}
+
+function updateFavButton(){
+  const favs = getFavorites();
+  favBtn.innerText = favs.includes(code) ? "⭐ Favorited" : "⭐ Add to Favorites";
+}
+
+/* COPY */
 window.copyCode = function(){
   navigator.clipboard.writeText(inviteEl.value);
   const btn = document.querySelector(".copy-btn");
-  btn.innerText = "Copied!";
+  btn.innerText="Copied!";
   setTimeout(()=>btn.innerText="Copy",1200);
 };
 </script>
