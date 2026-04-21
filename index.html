@@ -18,6 +18,7 @@ body{
   color:#2d0b4e;
 }
 
+/* HEADER */
 .header{
   display:flex;
   justify-content:space-between;
@@ -26,18 +27,11 @@ body{
   border-bottom:2px solid #a855f7;
 }
 
-.logo{display:flex;align-items:center;gap:10px;}
+.logo{display:flex;gap:10px;align-items:center;}
 .logo img{height:40px;}
 
-.search{
-  padding:10px;
-  border-radius:12px;
-  border:2px solid #a855f7;
-  font-family:'MultiCraft';
-}
-
 /* BUTTONS */
-.btn{
+.add-btn,.play-btn{
   padding:10px 16px;
   border-radius:12px;
   border:2px solid #a855f7;
@@ -47,11 +41,11 @@ body{
   transition:0.25s;
   font-family:'MultiCraft';
 }
-.btn:hover{
+.add-btn:hover,.play-btn:hover{
   transform:translateY(-2px) scale(1.05);
   box-shadow:0 8px 20px rgba(168,85,247,0.4);
 }
-.btn:active{transform:scale(0.9);}
+.add-btn:active,.play-btn:active{transform:scale(0.9);}
 
 /* GRID */
 .grid{
@@ -70,18 +64,38 @@ body{
   display:flex;
   flex-direction:column;
   position:relative;
-  transition:0.3s;
-}
-.card:hover{
-  box-shadow:0 0 25px rgba(168,85,247,0.6);
+  border:2px solid transparent;
+  transition:0.25s;
 }
 
+/* BADGES */
+.card.recommended{border:2px solid cyan;}
+.card.trending{border:2px solid red;}
+
+.badge{
+  position:absolute;
+  top:10px;
+  left:10px;
+  padding:5px 10px;
+  border-radius:10px;
+  font-size:11px;
+  color:white;
+}
+
+.badge.recommended{
+  background:linear-gradient(90deg,#00e5ff,#00ffa6);
+  color:black;
+}
+.badge.trending{background:red;}
+
+/* IMAGE */
 .bg{
   width:100%;
   aspect-ratio:16/9;
   object-fit:cover;
 }
 
+/* CONTENT */
 .content{
   padding:12px;
   display:flex;
@@ -97,17 +111,13 @@ body{
   font-size:12px;
   opacity:0.7;
   margin-top:4px;
-  display:flex;
-  gap:5px;
-  align-items:center;
 }
-
-.check{width:14px;}
 
 .desc{
   font-size:13px;
   opacity:0.7;
   margin-top:6px;
+
   display:-webkit-box;
   -webkit-line-clamp:3;
   -webkit-box-orient:vertical;
@@ -126,13 +136,22 @@ body{
   opacity:0.7;
 }
 
-/* FAVORITE */
-.fav{
-  position:absolute;
-  top:10px;
-  right:10px;
-  cursor:pointer;
-  font-size:18px;
+/* MODAL */
+.modal{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.4);
+}
+
+.modal-box{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  text-align:center;
 }
 </style>
 </head>
@@ -144,15 +163,19 @@ body{
     <img src="assets/logo.png">
     <div>MCSpace</div>
   </div>
-
-  <input id="search" class="search" placeholder="Search...">
-
-  <button class="btn" onclick="alert('DM @rwo1ld in Discord')">+ Add My Server</button>
+  <button class="add-btn" onclick="openModal()">+ Add my server</button>
 </div>
 
 <div id="grid" class="grid"></div>
 
-<!-- ONLY SCRIPT PART CHANGED (keep your HTML/CSS) -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h3>Add your server</h3>
+    <p>DM @rwo1ld in Discord.</p>
+    <button class="add-btn" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -166,82 +189,45 @@ const firebaseConfig = {
   appId:"1:984192110931:web:d7392a9815ab248c6391a6"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
 
-const verifiedUsers = ["RedWorld"];
-const recommendedServers = ["M5R9X1NY"];
+const recommended=["M5R9X1NY"];
 
-/* ✅ FULL SERVERS (YOUR DESCRIPTIONS PRESERVED) */
-let servers = [
-{id:1,name:"Erratic SMP",desc:"Good MultiCraft SMP with no areas, survival gameplay, active players, and many cool features to explore with friends.",code:"M5R9X1NY",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
-{id:2,name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌 Includes parkour, PvP, minigames, BedWars, Manhunt, treasure hunt, bridging, axe PvP, and many more fun modes.",code:"KAAYBNDP",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
-{id:3,name:"FlatWorld",desc:"Creative server where you can freely build anything in a flat world environment without limits.",code:"MCSRVR03",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
-{id:4,name:"New Types PvP",desc:"Awesome PvP server with many fun features, unique combat styles, and different gamemodes to enjoy.",code:"JLIVC3V9",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
-{id:5,name:"SMP12",desc:"Open world SMP where you can explore, fight, build, and do anything you want with PvP enabled.",code:"94D92LVD",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
-{id:6,name:"Stone Simulator",desc:"Underground survival server with economy. Mine stone, trade resources, and progress through a unique system.",code:"XX9IXQ6H",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
-{id:7,name:"Parkour Cubicles",desc:"Challenge yourself by completing 36 difficult parkour cubicles and try to escape the impossible map.",code:"QVZACNG5",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
+let servers=[
+{id:1,name:"Erratic SMP",desc:"Good MultiCraft SMP with no areas, and more very cool features.",code:"M5R9X1NY",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
+{id:2,name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS / MANHUNT / TREASURE HUNT / BRIDGING / AXE PVP / AND MANY MORE .. ✨",code:"KAAYBNDP",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
+{id:3,name:"FlatWorld",desc:"Creative Server",code:"MCSRVR03",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
+{id:4,name:"New Types PvP",desc:"Awesome PvP server, with a lot fun features and gamemodes.",code:"JLIVC3V9",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
+{id:5,name:"SMP12",desc:"In here, it's your job to have fun! The world open, PVP; it's a place where you can do anything!",code:"94D92LVD",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
+{id:6,name:"Stone Simulator",desc:"In here, we live underground! Also, we buy items from The Shop! With currencies such as Stone, Cobblestone, and more!",code:"XX9IXQ6H",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
+{id:7,name:"Parkour Cubicles",desc:"In here, YOU will try to beat the impossible 36 cubicles of the server to escape!",code:"QVZACNG5",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
 ];
 
-/* ✅ FAVORITES FIX */
-function getFavs(){
-  return JSON.parse(localStorage.getItem("favs") || "[]");
-}
-function toggleFav(code){
-  let favs = getFavs();
-  if(favs.includes(code)){
-    favs = favs.filter(f => f !== code);
-  } else {
-    favs.push(code);
-  }
-  localStorage.setItem("favs", JSON.stringify(favs));
-  init();
-}
-
-/* LOAD VISITS + GROWTH */
 async function loadVisits(s){
-  const snap = await getDoc(doc(db,"servers",s.code));
-  if(snap.exists()){
-    const d = snap.data();
-    s.visits = d.visits || 0;
-    s.lastVisits = d.lastVisits || 0;
-  } else {
-    s.visits = 0;
-    s.lastVisits = 0;
-  }
-  s.growth = s.visits - s.lastVisits;
+  const snap=await getDoc(doc(db,"servers",s.code));
+  s.visits=snap.exists()?snap.data().visits||0:0;
 }
 
 async function init(){
   await Promise.all(servers.map(loadVisits));
 
-  /* SORT BY VISITS */
   servers.sort((a,b)=>b.visits-a.visits);
 
-  /* TRENDING (SMART) */
-  const maxGrowth = Math.max(...servers.map(s=>s.growth));
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
+
   servers.forEach(s=>{
-    s.trending = !recommendedServers.includes(s.code) && s.growth >= Math.max(3, maxGrowth * 0.6);
-  });
+    const trending=s.visits>=10 && !recommended.includes(s.code);
 
-  const q = document.getElementById("search").value.toLowerCase();
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
+    const card=document.createElement("div");
+    card.className="card"+
+      (trending?" trending":"")+
+      (recommended.includes(s.code)?" recommended":"");
 
-  servers.filter(s=>s.name.toLowerCase().includes(q)).forEach(s=>{
-    const verified = verifiedUsers.includes(s.author);
-    const fav = getFavs().includes(s.code);
-
-    const card = document.createElement("div");
-    card.className = "card" +
-      (s.trending?" trending":"") +
-      (recommendedServers.includes(s.code)?" recommended":"");
-
-    card.innerHTML = `
-      ${recommendedServers.includes(s.code)?'<div class="badge recommended">RECOMMENDED</div>':''}
-      ${s.trending?'<div class="badge trending">TRENDING</div>':''}
-
-      <div class="fav">${fav?"❤️":"🤍"}</div>
+    card.innerHTML=`
+      ${recommended.includes(s.code)?'<div class="badge recommended">★ RECOMMENDED</div>':''}
+      ${trending?'<div class="badge trending">🔥 TRENDING</div>':''}
 
       <img class="bg" src="${s.bg}">
       <div class="content">
@@ -250,37 +236,40 @@ async function init(){
           <div class="name">${s.name}</div>
         </div>
 
-        <div class="author">
-          by ${s.author}
-          ${verified?'<img class="check" src="assets/check.png">':''}
-        </div>
+        <div class="author">by ${s.author}</div>
 
         <div class="desc">${s.desc}</div>
 
         <div class="actions">
           <div class="visits">${s.visits} visits</div>
-          <div class="btn play">Play</div>
+          <div class="play-btn" onclick="joinServer('${s.code}')">Play</div>
         </div>
       </div>
     `;
-
-    /* FIXED EVENT LISTENERS */
-    card.querySelector(".fav").onclick = ()=>toggleFav(s.code);
-    card.querySelector(".play").onclick = ()=>joinServer(s.code);
-
     grid.appendChild(card);
   });
 }
 
-/* PLAY */
-window.joinServer = async function(code){
-  const ref = doc(db,"servers",code);
-  try{await updateDoc(ref,{visits:increment(1)});}
-  catch{await setDoc(ref,{visits:1});}
-  location.href = "server.html?code=" + code;
+/* VISIT COOLDOWN */
+const COOLDOWN=10*60*1000;
+
+window.joinServer=async function(code){
+  const key="visit_"+code;
+  const now=Date.now();
+  const last=localStorage.getItem(key);
+
+  if(!last||now-last>COOLDOWN){
+    const ref=doc(db,"servers",code);
+    try{await updateDoc(ref,{visits:increment(1)});}
+    catch{await setDoc(ref,{visits:1});}
+    localStorage.setItem(key,now);
+  }
+
+  location.href="server.html?code="+code;
 };
 
-document.getElementById("search").oninput = init;
+window.openModal=()=>modal.style.display="flex";
+window.closeModal=()=>modal.style.display="none";
 
 init();
 </script>
