@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loading...</title>
+<title>MCspace</title>
 
 <style>
 @font-face {
@@ -13,12 +13,13 @@
 
 body{
   margin:0;
-  font-family:'MultiCraft', sans-serif;
+  font-family:'MultiCraft',sans-serif;
   background: radial-gradient(circle at top,#ffffff,#f3e8ff);
 }
 
-/* BUTTONS */
-.back,.copy-btn,.fav-btn{
+/* BACK BUTTON */
+.back{
+  margin:20px;
   padding:10px 16px;
   border-radius:12px;
   border:2px solid #a855f7;
@@ -26,18 +27,13 @@ body{
   color:white;
   cursor:pointer;
   transition:0.25s;
+  display:inline-block;
 }
-
-.back{ margin:20px; }
-
-.back:hover,.copy-btn:hover,.fav-btn:hover{
+.back:hover{
   transform:translateY(-2px) scale(1.05);
   box-shadow:0 8px 20px rgba(168,85,247,0.4);
 }
-
-.back:active,.copy-btn:active,.fav-btn:active{
-  transform:scale(0.9);
-}
+.back:active{transform:scale(0.9);}
 
 /* CARD */
 .card{
@@ -47,40 +43,36 @@ body{
   border-radius:20px;
   overflow:hidden;
   box-shadow:0 15px 40px rgba(168,85,247,0.25);
-  transition:0.3s;
-}
-.card:hover{
-  box-shadow:0 0 25px rgba(168,85,247,0.6);
+  animation:fadeIn 0.4s ease;
 }
 
-/* IMAGE */
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
 .bg{
   width:100%;
   aspect-ratio:16/9;
   object-fit:cover;
 }
 
-/* CONTENT */
-.content{ padding:25px; }
+.content{padding:25px;}
 
 .title-row{
   display:flex;
-  gap:10px;
   align-items:center;
+  gap:10px;
   flex-wrap:wrap;
 }
 
 .author{
   width:100%;
   opacity:0.7;
+  font-size:14px;
 }
 
-.check{ width:16px; }
-
-/* FAVORITE BUTTON */
-.fav-btn{
-  margin-top:10px;
-}
+.check{width:16px;}
 
 /* INVITE */
 .invite-label{
@@ -104,31 +96,41 @@ body{
   font-family:'MultiCraft';
 }
 
+/* COPY BUTTON FIX */
 .copy-btn{
+  padding:12px 16px;
   border-radius:0 12px 12px 0;
+  border:2px solid #a855f7;
+  background:linear-gradient(135deg,#a855f7,#7e22ce);
+  color:white;
+  cursor:pointer;
+  transition:0.25s;
+}
+.copy-btn:hover{
+  transform:scale(1.05);
+}
+.copy-btn:active{
+  transform:scale(0.9);
 }
 </style>
 </head>
 
 <body>
 
-<!-- ✅ FIXED BUTTON -->
 <div class="back" onclick="location.href='index.html'">← Back</div>
 
 <div class="card">
   <img id="bg" class="bg">
-
   <div class="content">
+
     <div class="title-row">
       <img id="heart" width="24">
       <h2 id="name">Loading...</h2>
       <img id="check" class="check" style="display:none;">
-      <div id="author" class="author"></div>
+      <div id="author"></div>
     </div>
 
     <p id="desc"></p>
-
-    <button class="fav-btn" onclick="toggleFavorite()">⭐ Add to Favorites</button>
 
     <div class="invite-label">Invite Code</div>
 
@@ -136,6 +138,7 @@ body{
       <input id="invite" readonly onclick="this.select()">
       <button class="copy-btn" onclick="copyCode()">Copy</button>
     </div>
+
   </div>
 </div>
 
@@ -143,7 +146,6 @@ body{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
   authDomain: "mcspaceomega.firebaseapp.com",
@@ -156,91 +158,100 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* SERVERS */
+/* FULL SERVER DATA */
 const servers = {
-  "M5R9X1NY": {name:"Erratic SMP",desc:"Good MultiCraft SMP with no areas, survival gameplay, active players, and many cool features to explore with friends.",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
-  "KAAYBNDP": {name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌 Includes parkour, PvP, minigames, BedWars, Manhunt, treasure hunt, bridging, axe PvP, and many more fun modes.",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
-  "MCSRVR03": {name:"FlatWorld",desc:"Creative server where you can freely build anything in a flat world environment without limits.",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
-  "JLIVC3V9": {name:"New Types PvP",desc:"Awesome PvP server with many fun features, unique combat styles, and different gamemodes to enjoy.",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
-  "94D92LVD": {name:"SMP12",desc:"Open world SMP where you can explore, fight, build, and do anything you want with PvP enabled.",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
-  "XX9IXQ6H": {name:"Stone Simulator",desc:"Underground survival server with economy. Mine stone, trade resources, and progress through a unique system.",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
-  "QVZACNG5": {name:"Parkour Cubicles",desc:"Challenge yourself by completing 36 difficult parkour cubicles and try to escape the impossible map.",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
+  "M5R9X1NY": {
+    name:"Erratic SMP",
+    desc:"Good MultiCraft SMP with survival gameplay, no restrictions, active community and fun exploration.",
+    author:"RedWorld",
+    bg:"bgs/bg1.png",
+    heart:"hearts/hpvp.png"
+  },
+  "KAAYBNDP": {
+    name:"Ronaldo Vs Messi",
+    desc:"BEST SERVER 👌 Parkour, PvP, BedWars, Manhunt, Bridging, Axe PvP and many more gamemodes.",
+    author:"Elder",
+    bg:"bgs/bg2.png",
+    heart:"hearts/hpvp.png"
+  },
+  "MCSRVR03": {
+    name:"FlatWorld",
+    desc:"Creative sandbox server where you can build anything in a flat world without limits.",
+    author:"Unknown",
+    bg:"bgs/bg3.png",
+    heart:"hearts/hc.png"
+  },
+  "JLIVC3V9": {
+    name:"New Types PvP",
+    desc:"Unique PvP server with custom combat styles and multiple fun competitive modes.",
+    author:"Unknown",
+    bg:"bgs/bg4.png",
+    heart:"hearts/hpvp.png"
+  },
+  "94D92LVD": {
+    name:"SMP12",
+    desc:"Open survival SMP where you can build, fight, explore and play freely with others.",
+    author:"Jared12",
+    bg:"bgs/bg5.png",
+    heart:"hearts/hpvp.png"
+  },
+  "XX9IXQ6H": {
+    name:"Stone Simulator",
+    desc:"Underground economy server: mine stone, trade resources and progress through systems.",
+    author:"Jared12",
+    bg:"bgs/bg6.png",
+    heart:"hearts/hpvp.png"
+  },
+  "QVZACNG5": {
+    name:"Parkour Cubicles",
+    desc:"Try to complete 36 impossible parkour challenges and escape the cube world.",
+    author:"Jared12",
+    bg:"bgs/bg7.png",
+    heart:"hearts/hpvp.png"
+  }
 };
 
-const verifiedUsers = ["RedWorld"];
+const verifiedUsers=["RedWorld"];
 
-/* GET CODE (supports both ?code= and #/) */
-const params = new URLSearchParams(location.search);
-let code = params.get("code") || location.hash.replace("#/","");
+const code = new URLSearchParams(location.search).get("code");
+const s = servers[code];
 
-/* ELEMENTS */
-const nameEl = document.getElementById("name");
-const descEl = document.getElementById("desc");
-const authorEl = document.getElementById("author");
-const inviteEl = document.getElementById("invite");
-const bgEl = document.getElementById("bg");
-const heartEl = document.getElementById("heart");
-const checkEl = document.getElementById("check");
-const favBtn = document.querySelector(".fav-btn");
+const nameEl=document.getElementById("name");
+const descEl=document.getElementById("desc");
+const authorEl=document.getElementById("author");
+const inviteEl=document.getElementById("invite");
+const bgEl=document.getElementById("bg");
+const heartEl=document.getElementById("heart");
+const checkEl=document.getElementById("check");
 
-/* LOAD */
-if(!servers[code]){
+if(!s){
   nameEl.innerText="Server not found";
-}else{
-  loadServer(servers[code]);
+  descEl.innerText="Invalid code.";
+} else {
+  load();
 }
 
-async function loadServer(s){
-  nameEl.innerText = s.name;
-  descEl.innerText = s.desc;
-  authorEl.innerText = "by " + s.author;
-  inviteEl.value = code;
+function load(){
+  nameEl.innerText=s.name;
+  descEl.innerText=s.desc;
+  authorEl.innerText="by "+s.author;
+  inviteEl.value=code;
 
-  bgEl.src = s.bg;
-  heartEl.src = s.heart;
+  bgEl.src=s.bg;
+  heartEl.src=s.heart;
 
   if(verifiedUsers.includes(s.author)){
     checkEl.src="assets/check.png";
     checkEl.style.display="inline";
   }
 
-  document.title = s.name + " • MCspace";
-
-  updateFavButton();
-
-  try{
-    const snap = await getDoc(doc(db,"servers",code));
-    console.log("Visits:", snap.exists()?snap.data().visits:0);
-  }catch{}
+  document.title=s.name+" • MCspace";
 }
 
-/* FAVORITES */
-function getFavorites(){
-  return JSON.parse(localStorage.getItem("favorites")||"[]");
-}
-
-function toggleFavorite(){
-  let favs = getFavorites();
-
-  if(favs.includes(code)){
-    favs = favs.filter(c=>c!==code);
-  }else{
-    favs.push(code);
-  }
-
-  localStorage.setItem("favorites", JSON.stringify(favs));
-  updateFavButton();
-}
-
-function updateFavButton(){
-  const favs = getFavorites();
-  favBtn.innerText = favs.includes(code) ? "⭐ Favorited" : "⭐ Add to Favorites";
-}
-
-/* COPY */
-window.copyCode = function(){
+/* COPY FIX */
+window.copyCode=function(){
   navigator.clipboard.writeText(inviteEl.value);
-  const btn = document.querySelector(".copy-btn");
+  const btn=document.querySelector(".copy-btn");
   btn.innerText="Copied!";
   setTimeout(()=>btn.innerText="Copy",1200);
 };
