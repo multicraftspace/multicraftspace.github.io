@@ -46,7 +46,6 @@ body{
 
 /* BUTTONS */
 .add-btn,.play-btn,.fav-btn{
-  padding:10px 16px;
   border-radius:12px;
   border:2px solid #a855f7;
   background:linear-gradient(135deg,#a855f7,#7e22ce);
@@ -55,6 +54,8 @@ body{
   transition:0.25s;
   font-family:'MultiCraft';
 }
+.add-btn,.play-btn{ padding:10px 16px; }
+
 .add-btn:hover,.play-btn:hover,.fav-btn:hover{
   transform:translateY(-2px) scale(1.05);
   box-shadow:0 8px 20px rgba(168,85,247,0.4);
@@ -63,7 +64,7 @@ body{
   transform:scale(0.9);
 }
 
-/* SUPPORT BUTTON */
+/* SUPPORT */
 .support{
   position:fixed;
   bottom:20px;
@@ -87,7 +88,7 @@ body{
   display:flex;
   flex-direction:column;
   border:2px solid transparent;
-  position:relative; /* ✅ FIXES BADGE BUG */
+  position:relative; /* FIX badge */
 }
 
 /* BADGES */
@@ -102,6 +103,7 @@ body{
   border-radius:10px;
   font-size:11px;
   color:white;
+  z-index:2;
 }
 .badge.recommended{
   background:linear-gradient(90deg,#00e5ff,#00ffa6);
@@ -123,7 +125,6 @@ body{
 }
 
 .title-row{display:flex;gap:6px;align-items:center;}
-
 .name{font-weight:bold;font-size:14px;}
 
 .author{
@@ -133,7 +134,6 @@ body{
   align-items:center;
   gap:5px;
 }
-
 .check{width:14px;}
 
 .desc{
@@ -146,11 +146,35 @@ body{
   overflow:hidden;
 }
 
+/* ACTIONS */
 .actions{
   margin-top:auto;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:10px;
+}
+
+.btns{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+/* FIX BUTTON SIZES */
+.fav-btn,
+.play-btn{
+  height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+
+.fav-btn{
+  width:38px;
+  padding:0;
+  font-size:16px;
 }
 
 .visits{
@@ -194,12 +218,10 @@ body{
 
 <div id="grid" class="grid"></div>
 
-<!-- SUPPORT BUTTON -->
 <button class="add-btn support" onclick="alert('Need some help? Mail contact@mtcspace.com.')">
   📧 Support
 </button>
 
-<!-- MODAL -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3>Add your server</h3>
@@ -212,7 +234,7 @@ body{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
+const firebaseConfig={
   apiKey:"AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
   authDomain:"mcspaceomega.firebaseapp.com",
   projectId:"mcspaceomega",
@@ -253,7 +275,6 @@ async function loadVisits(s){
 async function init(){
   await Promise.all(servers.map(loadVisits));
 
-  // SORT by visits
   servers.sort((a,b)=>b.visits-a.visits);
 
   const maxGrowth=Math.max(...servers.map(s=>s.growth||0),1);
@@ -271,7 +292,6 @@ function render(list){
 
   list.forEach(s=>{
     const verified=verifiedUsers.includes(s.author);
-
     const favs=JSON.parse(localStorage.getItem("favs")||"[]");
     const isFav=favs.includes(s.code);
 
@@ -300,7 +320,7 @@ function render(list){
 
         <div class="actions">
           <div class="visits">${s.visits} visits</div>
-          <div>
+          <div class="btns">
             <button class="fav-btn" onclick="toggleFav('${s.code}')">${isFav?'★':'☆'}</button>
             <button class="play-btn" onclick="joinServer('${s.code}')">Play</button>
           </div>
@@ -311,13 +331,11 @@ function render(list){
   });
 }
 
-/* SEARCH */
 document.getElementById("search").oninput=e=>{
   const q=e.target.value.toLowerCase();
   render(servers.filter(s=>s.name.toLowerCase().includes(q)));
 };
 
-/* FAVORITES */
 window.toggleFav=function(code){
   let favs=JSON.parse(localStorage.getItem("favs")||"[]");
   if(favs.includes(code)) favs=favs.filter(f=>f!==code);
@@ -326,7 +344,6 @@ window.toggleFav=function(code){
   init();
 };
 
-/* COOLDOWN */
 const COOLDOWN=10*60*1000;
 
 window.joinServer=async function(code){
