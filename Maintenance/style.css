@@ -1,0 +1,141 @@
+@font-face {
+    font-family: 'MultiCraft';
+    src: url('assets/MultiCraft.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+    --primary-color: #00bcd4; /* Cyan */
+    --secondary-color: #ff9800; /* Orange */
+    --background-color: #1e1e1e; /* Dark background */
+    --text-color: #ffffff; /* White text */
+    --accent-color: #4caf50; /* Green accent */
+    --font-primary: 'MultiCraft', sans-serif; /* Using your custom font as primary */
+    /* Removed --font-secondary as Orbitron is no longer used */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-primary);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+    overflow: hidden;
+}
+
+.maintenance-container {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 50px 60px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    max-width: 800px;
+    width: 90%;
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.logo {
+    max-width: 150px;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite alternate;
+}
+
+@keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+
+.site-title {
+    font-family: var(--font-primary); /* Using custom font for title */
+    font-size: 3.5em;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+}
+
+.maintenance-message {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+.sub-message {
+    font-size: 1.2em;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 40px; /* Adjusted margin as countdown is removed */
+    line-height: 1.6;
+}
+
+/* Countdown container removed */
+
+/* Social links section removed */
+
+.contact-message {
+    font-size: 1em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 40px; /* Added margin to push it down */
+}
+
+.contact-message a {
+    color: var(--secondary-color);
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.contact-message a:hover {
+    color: var(--accent-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .maintenance-container {
+        padding: 30px 40px;
+    }
+
+    .site-title {
+        font-size: 3em;
+    }
+
+    .maintenance-message {
+        font-size: 1.6em;
+    }
+
+    .sub-message {
+        font-size: 1.1em;
+    }
+
+    /* Removed countdown-specific styles */
+}
+
+@media (max-width: 480px) {
+    .maintenance-container {
+        padding: 20px 25px;
+    }
+
+    .site-title {
+        font-size: 2.5em;
+    }
+
+    .maintenance-message {
+        font-size: 1.4em;
+    }
+
+    .sub-message {
+        font-size: 1em;
+    }
+
+    /* Removed countdown-specific styles */
+}
