@@ -25,22 +25,22 @@ body{
   align-items:center;
   padding:15px 25px;
   border-bottom:2px solid #a855f7;
-  gap:15px;
 }
 
-.logo{display:flex;gap:10px;align-items:center;}
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
 .logo img{height:40px;}
 
 .search{
-  padding:10px 14px;
+  padding:10px;
   border-radius:12px;
   border:2px solid #a855f7;
-  width:280px;
+  width:260px;
   font-family:'MultiCraft';
-  transition:0.2s;
-}
-.search:focus{
-  box-shadow:0 0 12px rgba(168,85,247,0.5);
 }
 
 /* BUTTON */
@@ -51,13 +51,6 @@ body{
   background:linear-gradient(135deg,#a855f7,#7e22ce);
   color:white;
   cursor:pointer;
-  transition:0.2s;
-}
-.btn:hover{
-  transform:translateY(-2px) scale(1.05);
-}
-.btn:active{
-  transform:scale(0.9);
 }
 
 /* GRID */
@@ -70,39 +63,20 @@ body{
 
 /* CARD */
 .card{
+  background:white;
   border-radius:20px;
   overflow:hidden;
-  background:white;
   box-shadow:0 10px 30px rgba(0,0,0,0.1);
-  border:2px solid transparent;
   transition:0.2s;
-  position:relative;
 }
-.card:hover{
-  transform:translateY(-6px);
-}
+.card:hover{transform:translateY(-5px);}
 
-/* BADGES */
-.card.trending{border-color:red;}
-.card.recommended{border-color:cyan;}
-
-.badge{
-  position:absolute;
-  top:10px;
-  left:10px;
-  font-size:11px;
-  padding:5px 8px;
-  border-radius:10px;
-}
-.badge.trending{background:red;color:white;}
-.badge.recommended{background:cyan;color:black;}
-
-/* CONTENT */
 .bg{
   width:100%;
   aspect-ratio:16/9;
   object-fit:cover;
 }
+
 .content{padding:12px;}
 
 .author{
@@ -112,6 +86,7 @@ body{
   align-items:center;
   gap:5px;
 }
+
 .author img{
   width:16px;
   height:16px;
@@ -131,11 +106,6 @@ body{
   margin-top:10px;
 }
 
-.fav{
-  cursor:pointer;
-  font-size:16px;
-}
-
 /* MODAL */
 .modal{
   position:fixed;
@@ -145,18 +115,30 @@ body{
   align-items:center;
   background:rgba(0,0,0,0.5);
 }
+
 .modal-box{
   background:white;
   padding:25px;
   border-radius:20px;
-  width:320px;
+  width:350px;
+  position:relative;
 }
+
+/* CLOSE BUTTON */
+.close{
+  position:absolute;
+  top:10px;
+  right:15px;
+  cursor:pointer;
+  font-size:18px;
+}
+
 input{
   width:100%;
   padding:10px;
+  margin-bottom:10px;
   border-radius:10px;
   border:2px solid #a855f7;
-  margin-bottom:10px;
   font-family:'MultiCraft';
 }
 </style>
@@ -170,7 +152,7 @@ input{
     <div>MTCSpace</div>
   </div>
 
-  <input id="search" class="search" placeholder="Search servers...">
+  <input id="search" class="search" placeholder="Search...">
 
   <div>
     <button class="btn" onclick="openAdd()">+ Add my server</button>
@@ -181,13 +163,17 @@ input{
 
 <div id="grid" class="grid"></div>
 
-<!-- AUTH -->
+<!-- AUTH MODAL -->
 <div id="authModal" class="modal">
   <div class="modal-box">
+    <div class="close" onclick="closeAuth()">✖</div>
+
     <h3>Account</h3>
+
     <input id="user" placeholder="Username">
     <input id="pass" type="password" placeholder="Password">
     <input id="pfp" placeholder="Profile Picture URL (optional)">
+
     <button class="btn" onclick="signup()">Sign Up</button>
     <button class="btn" onclick="login()">Login</button>
   </div>
@@ -212,143 +198,149 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 
-let allServers=[];
-let currentUser=localStorage.getItem("user");
+let allServers = [];
+const currentUser = localStorage.getItem("user");
 
-if(currentUser) authBtn.innerText=currentUser;
+if(currentUser){
+  authBtn.innerText = currentUser;
+}
 
 /* AUTH */
-window.signup=async()=>{
-  const u=user.value.trim();
-  const p=pass.value.trim();
-  const pic=pfp.value.trim()||"no";
+window.openAuth = () => authModal.style.display = "flex";
+window.closeAuth = () => authModal.style.display = "none";
 
-  if(!u||!p) return alert("Fill fields");
+window.signup = async () => {
+  try{
+    const u = user.value.trim();
+    const p = pass.value.trim();
+    const pic = pfp.value.trim() || "no";
 
-  const ref=doc(db,"users",u);
-  if((await getDoc(ref)).exists()) return alert("Username taken");
+    if(!u || !p) return alert("Fill fields");
 
-  await setDoc(ref,{
-    password:p,
-    pfp:pic,
-    subs:0,
-    desc:""
-  });
+    const ref = doc(db,"users",u);
+    if((await getDoc(ref)).exists()) return alert("Username taken");
 
-  localStorage.setItem("user",u);
-  location.reload();
+    await setDoc(ref,{
+      password:p,
+      pfp:pic,
+      subs:0,
+      desc:""
+    });
+
+    localStorage.setItem("user",u);
+    location.reload();
+  }catch(e){
+    console.error(e);
+    alert("Signup error");
+  }
 };
 
-window.login=async()=>{
-  const snap=await getDoc(doc(db,"users",user.value));
-  if(!snap.exists()) return alert("No user");
-  if(snap.data().password!==pass.value) return alert("Wrong password");
+window.login = async () => {
+  try{
+    const snap = await getDoc(doc(db,"users",user.value));
+    if(!snap.exists()) return alert("User not found");
 
-  localStorage.setItem("user",user.value);
-  location.reload();
+    if(snap.data().password !== pass.value){
+      return alert("Wrong password");
+    }
+
+    localStorage.setItem("user",user.value);
+    location.reload();
+  }catch(e){
+    console.error(e);
+    alert("Login error");
+  }
 };
-
-window.openAuth=()=>authModal.style.display="flex";
 
 /* LOAD SERVERS */
 async function load(){
-  const snap=await getDocs(collection(db,"servers"));
-  allServers=[];
+  try{
+    const snap = await getDocs(collection(db,"servers"));
 
-  snap.forEach(d=>{
-    const s=d.data();
-    s.code=d.id;
-    s.growth=(s.visits||0)-(s.lastVisits||0);
-    allServers.push(s);
-  });
+    allServers = [];
 
-  render(allServers);
+    snap.forEach(d=>{
+      const s = d.data();
+      s.code = d.id;
+      allServers.push(s);
+    });
+
+    render(allServers);
+  }catch(e){
+    console.error("LOAD ERROR:", e);
+  }
 }
 
 /* RENDER */
 async function render(list){
-  grid.innerHTML="";
-
-  const maxGrowth=Math.max(...list.map(s=>s.growth||0),1);
+  grid.innerHTML = "";
 
   for(const s of list){
-    const userSnap=await getDoc(doc(db,"users",s.author));
-    const pfp=userSnap.exists() && userSnap.data().pfp!=="no"
-      ?userSnap.data().pfp
-      :"assets/default.png";
+    const card = document.createElement("div");
+    card.className = "card";
 
-    const trending=s.growth>maxGrowth*0.6;
-    const favs=JSON.parse(localStorage.getItem("favs")||"[]");
-
-    const card=document.createElement("div");
-    card.className="card"+(trending?" trending":"");
-
-    card.innerHTML=`
-      ${trending?'<div class="badge trending">🔥 TRENDING</div>':''}
-      <img class="bg" src="${s.bg}">
+    card.innerHTML = `
+      <img class="bg" src="${s.bg || 'bgs/bg1.png'}">
       <div class="content">
-        <b>${s.name}</b>
-
-        <div class="author">
-          <img src="${pfp}">
-          ${s.author}
-        </div>
-
-        <div class="desc">${s.desc}</div>
+        <b>${s.name || "No name"}</b>
+        <div class="author">by ${s.author || "Unknown"}</div>
+        <div class="desc">${s.desc || ""}</div>
 
         <div class="actions">
-          <span>${s.visits||0} visits</span>
-          <div>
-            <span class="fav" onclick="fav('${s.code}')">
-              ${favs.includes(s.code)?"❤️":"🤍"}
-            </span>
-            <button class="btn" onclick="play('${s.code}')">Play</button>
-          </div>
+          <span>${s.visits || 0} visits</span>
+          <button class="btn" onclick="play('${s.code}')">Play</button>
         </div>
       </div>
     `;
+
     grid.appendChild(card);
   }
 }
 
-/* FAVORITES */
-window.fav=(c)=>{
-  let f=JSON.parse(localStorage.getItem("favs")||"[]");
-  f.includes(c)?f=f.filter(x=>x!==c):f.push(c);
-  localStorage.setItem("favs",JSON.stringify(f));
-  render(allServers);
-};
-
 /* SEARCH */
-search.oninput=()=>{
-  const q=search.value.toLowerCase();
-  render(allServers.filter(s=>s.name.toLowerCase().includes(q)));
+search.oninput = () => {
+  const q = search.value.toLowerCase();
+  render(allServers.filter(s =>
+    (s.name || "").toLowerCase().includes(q)
+  ));
 };
 
 /* PLAY */
-const COOLDOWN=600000;
-window.play=async(c)=>{
-  const key="visit_"+c;
-  const now=Date.now();
+const COOLDOWN = 600000;
 
-  if(!localStorage.getItem(key)||now-localStorage.getItem(key)>COOLDOWN){
-    await updateDoc(doc(db,"servers",c),{visits:increment(1)});
-    localStorage.setItem(key,now);
+window.play = async (code) => {
+  try{
+    const key = "visit_" + code;
+    const now = Date.now();
+
+    if(!localStorage.getItem(key) || now - localStorage.getItem(key) > COOLDOWN){
+      await updateDoc(doc(db,"servers",code),{
+        visits: increment(1)
+      });
+      localStorage.setItem(key, now);
+    }
+
+    location.href = "server.html?code=" + code;
+  }catch(e){
+    console.error(e);
   }
-
-  location.href="server.html?code="+c;
 };
 
-window.openAdd=()=>{
-  if(!localStorage.getItem("user")) return openAuth();
-  location.href="mailto:add@mtcspace.com";
+/* BUTTONS */
+window.openAdd = () => {
+  if(!localStorage.getItem("user")){
+    openAuth();
+  }else{
+    location.href = "mailto:add@mtcspace.com";
+  }
 };
 
-window.contact=()=>{
-  location.href="mailto:contact@mtcspace.com?subject=I need help";
+window.contact = () => {
+  location.href = "mailto:contact@mtcspace.com?subject=I need help";
 };
 
 load();
 </script>
+
 </body>
 </html>
