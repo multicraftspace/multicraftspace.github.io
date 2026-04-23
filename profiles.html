@@ -20,56 +20,13 @@ body{
 
 /* HEADER */
 .header{
-  padding:20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 25px;
   border-bottom:2px solid #a855f7;
-  display:flex;
-  align-items:center;
-  gap:15px;
 }
 
-/* PROFILE CARD */
-.profile{
-  max-width:900px;
-  margin:30px auto;
-  background:white;
-  border-radius:20px;
-  padding:25px;
-  box-shadow:0 15px 35px rgba(168,85,247,0.2);
-}
-
-/* PFP */
-.pfp{
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  object-fit:cover;
-  border:3px solid #a855f7;
-}
-
-/* USER INFO */
-.row{
-  display:flex;
-  gap:20px;
-  align-items:center;
-}
-
-.name{
-  font-size:22px;
-  font-weight:bold;
-}
-
-.check{
-  width:18px;
-  margin-left:5px;
-}
-
-/* DESC */
-.desc{
-  margin-top:10px;
-  opacity:0.8;
-}
-
-/* BUTTON */
 .btn{
   padding:10px 16px;
   border-radius:12px;
@@ -77,26 +34,82 @@ body{
   background:linear-gradient(135deg,#a855f7,#7e22ce);
   color:white;
   cursor:pointer;
+  transition:0.25s;
+}
+.btn:hover{
+  transform:translateY(-2px);
+}
+
+/* PROFILE */
+.profile{
+  max-width:900px;
+  margin:30px auto;
+  background:white;
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 15px 40px rgba(168,85,247,0.25);
+  text-align:center;
+  animation:fadeIn .4s;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.pfp{
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid #a855f7;
+}
+
+.name{
+  font-size:22px;
   margin-top:10px;
 }
 
-/* SERVERS GRID */
-.grid{
-  max-width:900px;
-  margin:20px auto;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:20px;
+.check{
+  width:18px;
+  vertical-align:middle;
 }
 
-/* CARD */
+.desc{
+  margin-top:10px;
+  opacity:0.7;
+}
+
+textarea{
+  width:100%;
+  border-radius:12px;
+  border:2px solid #a855f7;
+  padding:10px;
+  font-family:'MultiCraft';
+  margin-top:10px;
+}
+
+.subs{
+  margin-top:10px;
+  font-size:14px;
+  opacity:0.7;
+}
+
+/* SERVERS */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:20px;
+  padding:30px;
+}
+
 .card{
+  border-radius:20px;
   background:white;
-  border-radius:15px;
   overflow:hidden;
-  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+  box-shadow:0 10px 25px rgba(168,85,247,0.2);
   cursor:pointer;
-  transition:0.2s;
+  transition:0.25s;
 }
 .card:hover{
   transform:translateY(-5px);
@@ -112,23 +125,8 @@ body{
   padding:10px;
 }
 
-.title{
+.nameS{
   font-weight:bold;
-}
-
-.small{
-  font-size:12px;
-  opacity:0.7;
-}
-
-/* EDIT BOX */
-textarea{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:2px solid #a855f7;
-  margin-top:10px;
-  font-family:'MultiCraft';
 }
 </style>
 </head>
@@ -136,45 +134,33 @@ textarea{
 <body>
 
 <div class="header">
-  <div onclick="location.href='index.html'" style="cursor:pointer;">← Back</div>
+  <div onclick="location.href='index.html'" class="btn">← Back</div>
 </div>
 
 <div class="profile">
-  <div class="row">
-    <img id="pfp" class="pfp">
-
-    <div>
-      <div class="name">
-        @<span id="username"></span>
-        <img id="check" class="check" style="display:none;" src="assets/check.png">
-      </div>
-
-      <div id="subsText" class="small"></div>
-
-      <button id="subBtn" class="btn" onclick="subscribe()">Subscribe</button>
-    </div>
-  </div>
+  <img id="pfp" class="pfp">
+  <div class="name" id="name"></div>
+  <div class="subs" id="subs"></div>
 
   <div id="desc" class="desc"></div>
 
-  <!-- EDIT -->
-  <div id="editBox" style="display:none;">
-    <textarea id="descInput" placeholder="Write your description..."></textarea>
-    <button class="btn" onclick="saveDesc()">Save</button>
-  </div>
+  <textarea id="editDesc" placeholder="Edit your description..." style="display:none;"></textarea>
+  <button id="saveBtn" class="btn" style="display:none;">Save</button>
+
+  <br><br>
+  <button id="subBtn" class="btn">Subscribe</button>
 </div>
 
-<h3 style="max-width:900px;margin:auto;">Servers</h3>
 <div id="servers" class="grid"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-getFirestore, doc, getDoc, updateDoc, increment,
-collection, getDocs
+  getFirestore, doc, getDoc, updateDoc,
+  increment, collection, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
+/* FIREBASE CONFIG */
 const app = initializeApp({
   apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
   authDomain: "mcspaceomega.firebaseapp.com",
@@ -186,44 +172,73 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 
-/* GET USER */
+/* GET USER FROM URL */
 const username = new URLSearchParams(location.search).get("u")?.replace("@","");
+
 const currentUser = localStorage.getItem("user");
+
+/* ELEMENTS */
+const nameEl = document.getElementById("name");
+const descEl = document.getElementById("desc");
+const editDesc = document.getElementById("editDesc");
+const saveBtn = document.getElementById("saveBtn");
+const pfpEl = document.getElementById("pfp");
+const subsEl = document.getElementById("subs");
+const subBtn = document.getElementById("subBtn");
 
 /* LOAD PROFILE */
 async function load(){
-  const snap = await getDoc(doc(db,"users",username));
-  if(!snap.exists()) return;
+  const ref = doc(db,"users",username);
+  const snap = await getDoc(ref);
 
-  const u = snap.data();
+  if(!snap.exists()){
+    nameEl.innerText="User not found";
+    return;
+  }
 
-  usernameEl.innerText = username;
-  subsText.innerText = (u.subs||0) + " subscribers";
+  const d = snap.data();
 
-  desc.innerText = u.desc || "No description yet.";
+  nameEl.innerHTML = username +
+    (d.verified ? ' <img src="assets/check.png" class="check">' : '');
 
-  pfp.src = (u.pfp && u.pfp !== "no")
-    ? u.pfp
+  descEl.innerText = d.description || "No description.";
+  subsEl.innerText = (d.subs || 0) + " subscribers";
+
+  pfpEl.src = d.pfpURL && d.pfpURL !== "no"
+    ? d.pfpURL
     : "assets/default.png";
 
-  /* VERIFIED */
-  if(u.verifiedUser){
-    check.style.display="inline";
-  }
-
-  /* EDIT */
+  /* OWNER EDIT */
   if(currentUser === username){
-    editBox.style.display="block";
-    subBtn.style.display="none";
+    editDesc.style.display="block";
+    saveBtn.style.display="inline-block";
+    editDesc.value = d.description || "";
   }
-
-  loadServers();
 }
+
+/* SAVE DESC */
+saveBtn.onclick = async ()=>{
+  await updateDoc(doc(db,"users",username),{
+    description: editDesc.value
+  });
+  location.reload();
+};
+
+/* SUBSCRIBE */
+subBtn.onclick = async ()=>{
+  if(!currentUser) return alert("Login required");
+
+  await updateDoc(doc(db,"users",username),{
+    subs: increment(1)
+  });
+
+  location.reload();
+};
 
 /* LOAD USER SERVERS */
 async function loadServers(){
   const snap = await getDocs(collection(db,"servers"));
-  servers.innerHTML="";
+  const container = document.getElementById("servers");
 
   snap.forEach(d=>{
     const s = d.data();
@@ -231,45 +246,20 @@ async function loadServers(){
 
     const card = document.createElement("div");
     card.className="card";
+    card.onclick=()=>location.href="server.html?code="+d.id;
 
     card.innerHTML=`
-      <img class="bg" src="${s.bg}">
+      <img class="bg" src="${s.bg || 'bgs/bg1.png'}">
       <div class="content">
-        <div class="title">${s.name}</div>
-        <div class="small">${s.visits||0} visits</div>
+        <div class="nameS">${s.name}</div>
       </div>
     `;
-
-    card.onclick=()=>{
-      location.href="server.html?code="+d.id;
-    };
-
-    servers.appendChild(card);
+    container.appendChild(card);
   });
 }
 
-/* SUBSCRIBE */
-window.subscribe = async ()=>{
-  const key = "sub_"+username;
-  if(localStorage.getItem(key)) return alert("Already subscribed");
-
-  await updateDoc(doc(db,"users",username),{
-    subs: increment(1)
-  });
-
-  localStorage.setItem(key,"1");
-  load();
-};
-
-/* SAVE DESC */
-window.saveDesc = async ()=>{
-  await updateDoc(doc(db,"users",username),{
-    desc: descInput.value
-  });
-  load();
-};
-
 load();
+loadServers();
 </script>
 
 </body>
