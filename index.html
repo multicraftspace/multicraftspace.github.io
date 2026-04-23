@@ -258,15 +258,25 @@ async function loadUser(){
 
 /* LOAD SERVERS */
 async function load(){
-  const snap = await getDocs(collection(db,"servers"));
-  allServers=[];
+  try{
+    const snap = await getDocs(collection(db,"servers"));
 
-  snap.forEach(d=>{
-    const s=d.data();
-    s.code=d.id;
-    s.growth=(s.visits||0)-(s.lastVisits||0);
-    allServers.push(s);
-  });
+    allServers = [];
+
+    snap.forEach(d=>{
+      const s = d.data();
+      s.code = d.id;
+      s.growth = (s.visits||0) - (s.lastVisits||0);
+      allServers.push(s);
+    });
+
+    render(allServers);
+
+  }catch(e){
+    console.error("LOAD ERROR:", e);
+    document.body.innerHTML = "<h2 style='text-align:center'>Error loading servers</h2>";
+  }
+}
 
   render(allServers);
 }
@@ -371,8 +381,8 @@ window.contact=()=>{
   location.href="mailto:contact@mtcspace.com";
 };
 
-window.openAuth=()=>{
-  alert("Auth UI will be upgraded next step");
+window.openAuth = () => {
+  document.getElementById("authModal").style.display = "flex";
 };
 
 load();
