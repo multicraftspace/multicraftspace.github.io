@@ -6,14 +6,14 @@
 <title>MTCSpace</title>
 
 <style>
-@font-face {
-  font-family: 'MultiCraft';
-  src: url('assets/MultiCraft.ttf');
+@font-face{
+  font-family:'MultiCraft';
+  src:url('assets/MultiCraft.ttf');
 }
 
 body{
   margin:0;
-  font-family:'MultiCraft',sans-serif;
+  font-family:'MultiCraft';
   background: radial-gradient(circle at top,#ffffff,#f3e8ff);
   color:#2d0b4e;
 }
@@ -27,41 +27,35 @@ body{
   border-bottom:2px solid #a855f7;
 }
 
-.logo{display:flex;gap:10px;align-items:center;}
+.logo{display:flex;align-items:center;gap:10px;}
 .logo img{height:40px;}
 
-.right{display:flex;gap:10px;align-items:center;}
+/* SEARCH */
+.search{
+  padding:10px;
+  border-radius:12px;
+  border:2px solid #a855f7;
+  outline:none;
+  font-family:'MultiCraft';
+  width:200px;
+}
 
-/* BUTTON */
+/* BUTTONS */
 .btn{
-  padding:10px 14px;
+  padding:10px 16px;
   border-radius:12px;
   border:2px solid #a855f7;
   background:linear-gradient(135deg,#a855f7,#7e22ce);
   color:white;
   cursor:pointer;
-  font-family:'MultiCraft';
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:40px;
   transition:0.25s;
+  font-family:'MultiCraft';
 }
 .btn:hover{
   transform:translateY(-2px) scale(1.05);
   box-shadow:0 8px 20px rgba(168,85,247,0.4);
 }
 .btn:active{transform:scale(0.9);}
-
-/* SEARCH */
-.search{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-bottom:2px solid #a855f7;
-  outline:none;
-  font-family:'MultiCraft';
-}
 
 /* GRID */
 .grid{
@@ -74,17 +68,22 @@ body{
 /* CARD */
 .card{
   border-radius:20px;
-  overflow:hidden;
   background:white;
-  box-shadow:0 15px 35px rgba(168,85,247,0.25);
+  overflow:hidden;
   display:flex;
   flex-direction:column;
-  position:relative;
+  box-shadow:0 15px 35px rgba(168,85,247,0.25);
   border:2px solid transparent;
+  transition:0.25s;
 }
 
-.card.recommended{border:2px solid cyan;}
+.card:hover{
+  transform:translateY(-5px);
+}
+
+/* BADGES */
 .card.trending{border:2px solid red;}
+.card.recommended{border:2px solid cyan;}
 
 .badge{
   position:absolute;
@@ -96,12 +95,13 @@ body{
   color:white;
 }
 
+.badge.trending{background:red;}
 .badge.recommended{
   background:linear-gradient(90deg,#00e5ff,#00ffa6);
   color:black;
 }
-.badge.trending{background:red;}
 
+/* IMAGE */
 .bg{
   width:100%;
   aspect-ratio:16/9;
@@ -116,28 +116,18 @@ body{
   flex:1;
 }
 
-.title-row{
-  display:flex;
-  gap:6px;
-  align-items:center;
-}
+.title-row{display:flex;gap:6px;align-items:center;}
 
-.name{
-  font-weight:bold;
-  font-size:14px;
-}
+.name{font-weight:bold;font-size:14px;}
 
 .author{
   font-size:12px;
   opacity:0.7;
-  margin-top:4px;
-  display:flex;
-  align-items:center;
-  gap:5px;
 }
 
 .check{width:14px;}
 
+/* DESC */
 .desc{
   font-size:13px;
   opacity:0.7;
@@ -149,40 +139,42 @@ body{
   overflow:hidden;
 }
 
-/* ACTIONS FIXED */
+/* ACTIONS */
 .actions{
   margin-top:auto;
   display:flex;
-  gap:8px;
+  justify-content:space-between;
   align-items:center;
 }
 
-.play-btn{
-  flex:1;
-}
-
-.fav-btn{
-  width:40px;
-  height:40px;
-  border-radius:12px;
-  border:2px solid #a855f7;
-  background:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-.fav-btn.active{
-  background:#ffd6ff;
-}
-
-/* VISITS */
 .visits{
   font-size:12px;
   opacity:0.7;
-  margin-top:4px;
 }
 
+/* FAVORITE */
+.fav{
+  cursor:pointer;
+  font-size:16px;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.4);
+}
+
+.modal-box{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  text-align:center;
+}
 </style>
 </head>
 
@@ -194,148 +186,174 @@ body{
     <div>MTCSpace</div>
   </div>
 
-  <div class="right">
-    <button class="btn" onclick="addServer()">+ Add my server</button>
-    <button class="btn" onclick="support()">📧</button>
-    <button class="btn" id="userBtn">Sign Up</button>
+  <input id="search" class="search" placeholder="Search...">
+
+  <div>
+    <button class="btn" onclick="openAdd()">+ Add my server</button>
+    <button class="btn" onclick="contact()">📩</button>
+    <button id="authBtn" class="btn" onclick="openAuth()">Sign Up</button>
   </div>
 </div>
 
-<input class="search" placeholder="Search servers..." oninput="render(this.value)">
-
 <div id="grid" class="grid"></div>
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="modal">
+  <div class="modal-box">
+    <h3>Sign Up / Login</h3>
+    <input id="user" placeholder="Username"><br><br>
+    <input id="pass" type="password" placeholder="Password"><br><br>
+    <button class="btn" onclick="signup()">Sign Up</button>
+    <button class="btn" onclick="login()">Login</button>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, updateDoc,
-  increment, setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey:"AIzaSy...",
+  apiKey:"AIzaSyD...",
+  authDomain:"mcspaceomega.firebaseapp.com",
   projectId:"mcspaceomega"
 });
+
 const db=getFirestore(app);
 
-const verifiedUsers=["RedWorld"];
 const recommended=["M5R9X1NY"];
+const verified=["RedWorld"];
 
-let servers=[
-{id:1,name:"Erratic SMP",desc:"Good MultiCraft SMP with no areas, and more very cool features.",code:"M5R9X1NY",author:"RedWorld",bg:"bgs/bg1.png",heart:"hearts/hpvp.png"},
-{id:2,name:"Ronaldo Vs Messi",desc:"BEST SERVER 👌, PARKOUR / PvP / MINI GAMES / BEDWARS / MANHUNT / TREASURE HUNT / BRIDGING / AXE PVP / AND MANY MORE .. ✨",code:"KAAYBNDP",author:"Elder",bg:"bgs/bg2.png",heart:"hearts/hpvp.png"},
-{id:3,name:"FlatWorld",desc:"Creative Server",code:"MCSRVR03",author:"Unknown",bg:"bgs/bg3.png",heart:"hearts/hc.png"},
-{id:4,name:"New Types PvP",desc:"Awesome PvP server, with a lot fun features and gamemodes.",code:"JLIVC3V9",author:"Unknown",bg:"bgs/bg4.png",heart:"hearts/hpvp.png"},
-{id:5,name:"SMP12",desc:"In here, it's your job to have fun! The world open, PVP; it's a place where you can do anything!",code:"94D92LVD",author:"Jared12",bg:"bgs/bg5.png",heart:"hearts/hpvp.png"},
-{id:6,name:"Stone Simulator",desc:"In here, we live underground! Also, we buy items from The Shop! With currencies such as Stone, Cobblestone, and more!",code:"XX9IXQ6H",author:"Jared12",bg:"bgs/bg6.png",heart:"hearts/hpvp.png"},
-{id:7,name:"Parkour Cubicles",desc:"In here, YOU will try to beat the impossible 36 cubicles of the server to escape!",code:"QVZACNG5",author:"Jared12",bg:"bgs/bg7.png",heart:"hearts/hpvp.png"}
-];
-
-async function load(){
-  await Promise.all(servers.map(async s=>{
-    const snap=await getDoc(doc(db,"servers",s.code));
-    if(snap.exists()){
-      const d=snap.data();
-      s.visits=d.visits||0;
-      s.lastVisits=d.lastVisits||0;
-    } else {
-      s.visits=0;
-      s.lastVisits=0;
-    }
-    s.growth=s.visits-s.lastVisits;
-  }));
-
-  render("");
+/* AUTH */
+function setUser(u){
+  localStorage.setItem("user",u);
+  document.getElementById("authBtn").innerText=u;
 }
 
-function render(search){
+window.signup=async function(){
+  const u=user.value;
+  const p=pass.value;
+
+  const ref=doc(db,"users",u);
+  const snap=await getDoc(ref);
+
+  if(snap.exists()) return alert("Taken");
+
+  await setDoc(ref,{password:p});
+  setUser(u);
+  authModal.style.display="none";
+};
+
+window.login=async function(){
+  const ref=doc(db,"users",user.value);
+  const snap=await getDoc(ref);
+
+  if(!snap.exists()) return alert("No user");
+
+  if(snap.data().password!==pass.value) return alert("Wrong pass");
+
+  setUser(user.value);
+  authModal.style.display="none";
+};
+
+window.openAuth=()=>authModal.style.display="flex";
+
+/* LOAD SERVERS */
+let allServers=[];
+
+async function load(){
+  const snap=await getDocs(collection(db,"servers"));
+  allServers=[];
+
+  snap.forEach(d=>{
+    const s=d.data();
+    s.code=d.id;
+    allServers.push(s);
+  });
+
+  render(allServers);
+}
+
+function render(list){
   const grid=document.getElementById("grid");
   grid.innerHTML="";
 
-  let list=servers.filter(s=>s.name.toLowerCase().includes(search.toLowerCase()));
+  const maxGrowth=Math.max(...list.map(s=>s.growth||0),1);
 
-  const maxGrowth=Math.max(...list.map(s=>s.growth||0));
+  list.sort((a,b)=>b.visits-a.visits);
 
   list.forEach(s=>{
-    const trending = !recommended.includes(s.code) && s.growth >= maxGrowth*0.6;
-
-    const favs=JSON.parse(localStorage.getItem("favs")||"[]");
-    const verified=verifiedUsers.includes(s.author);
+    const trending=(s.growth||0)>maxGrowth*0.6;
+    const isRec=recommended.includes(s.code);
 
     const card=document.createElement("div");
-    card.className="card"+
-      (trending?" trending":"")+
-      (recommended.includes(s.code)?" recommended":"");
+    card.className="card"+(trending?" trending":"")+(isRec?" recommended":"");
 
     card.innerHTML=`
-      ${recommended.includes(s.code)?'<div class="badge recommended">★</div>':''}
-      ${trending?'<div class="badge trending">🔥</div>':''}
+      ${isRec?'<div class="badge recommended">★ RECOMMENDED</div>':''}
+      ${trending?'<div class="badge trending">🔥 TRENDING</div>':''}
 
-      <img class="bg" src="${s.bg}">
-
+      <img class="bg" src="${s.bg||'bgs/bg1.png'}">
       <div class="content">
         <div class="title-row">
-          <img src="${s.heart}" width="18">
           <div class="name">${s.name}</div>
         </div>
 
         <div class="author">
           by ${s.author}
-          ${verified?'<img class="check" src="assets/check.png">':''}
+          ${verified.includes(s.author)?'<img class="check" src="assets/check.png">':''}
         </div>
 
         <div class="desc">${s.desc}</div>
-        <div class="visits">${s.visits} visits</div>
 
         <div class="actions">
-          <button class="btn play-btn" onclick="join('${s.code}')">Play</button>
-          <div class="fav-btn ${favs.includes(s.code)?"active":""}" onclick="fav('${s.code}',this)">❤</div>
+          <div class="visits">${s.visits||0} visits</div>
+          <div>
+            <span class="fav" onclick="fav('${s.code}')">❤</span>
+            <button class="btn" onclick="play('${s.code}')">Play</button>
+          </div>
         </div>
       </div>
     `;
-
     grid.appendChild(card);
   });
 }
 
-window.fav=function(code,el){
-  let favs=JSON.parse(localStorage.getItem("favs")||"[]");
-  if(favs.includes(code)){
-    favs=favs.filter(x=>x!==code);
-    el.classList.remove("active");
-  }else{
-    favs.push(code);
-    el.classList.add("active");
-  }
-  localStorage.setItem("favs",JSON.stringify(favs));
+/* SEARCH */
+search.oninput=()=>{
+  const q=search.value.toLowerCase();
+  render(allServers.filter(s=>s.name.toLowerCase().includes(q)));
 };
 
+/* PLAY + COOLDOWN */
 const COOLDOWN=10*60*1000;
 
-window.join=async function(code){
+window.play=async function(code){
   const key="visit_"+code;
   const now=Date.now();
-  const last=localStorage.getItem(key);
 
-  if(!last || now-last>COOLDOWN){
-    const ref=doc(db,"servers",code);
-    try{await updateDoc(ref,{visits:increment(1)});}
-    catch{await setDoc(ref,{visits:1});}
+  if(!localStorage.getItem(key)||now-localStorage.getItem(key)>COOLDOWN){
+    await updateDoc(doc(db,"servers",code),{visits:increment(1)});
     localStorage.setItem(key,now);
   }
 
   location.href="server.html?code="+code;
 };
 
-window.addServer=function(){
-  location.href="mailto:add@mtcspace.com?subject=Add My Server&body=Server invite code:%0ADescription:%0AAuthor:";
+/* BUTTONS */
+window.openAdd=()=>{
+  if(!localStorage.getItem("user")){
+    openAuth();
+  }else{
+    location.href="mailto:add@mtcspace.com?subject=Add Server";
+  }
 };
 
-window.support=function(){
+window.contact=()=>{
   location.href="mailto:contact@mtcspace.com?subject=I need help";
 };
 
 load();
 </script>
+
 </body>
 </html>
