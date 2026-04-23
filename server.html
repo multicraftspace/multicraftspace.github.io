@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loading...</title>
+<title>Server</title>
 
 <style>
 @font-face{
@@ -15,14 +15,11 @@ body{
   margin:0;
   font-family:'MultiCraft';
   background: radial-gradient(circle at top,#ffffff,#f3e8ff);
-  color:#2d0b4e;
 }
 
-/* HEADER */
-.top{
-  padding:15px;
-}
+/* BACK */
 .back{
+  margin:20px;
   padding:10px 16px;
   border-radius:12px;
   border:2px solid #a855f7;
@@ -39,55 +36,61 @@ body{
   border-radius:20px;
   overflow:hidden;
   box-shadow:0 15px 40px rgba(168,85,247,0.25);
-  animation:fade 0.4s ease;
-}
-@keyframes fade{
-  from{opacity:0; transform:translateY(15px);}
-  to{opacity:1;}
+  border:2px solid transparent;
 }
 
+/* BADGES */
+.card.trending{border:2px solid red;}
+.card.recommended{border:2px solid cyan;}
+
+.badge{
+  position:absolute;
+  margin:10px;
+  padding:5px 10px;
+  border-radius:10px;
+  font-size:11px;
+}
+
+.badge.trending{background:red;color:white;}
+.badge.recommended{
+  background:linear-gradient(90deg,#00e5ff,#00ffa6);
+  color:black;
+}
+
+/* IMAGE */
 .bg{
   width:100%;
   aspect-ratio:16/9;
   object-fit:cover;
 }
 
-.content{
-  padding:20px;
-}
-
-.name{
-  font-size:22px;
-  font-weight:bold;
-}
+.content{padding:20px;}
 
 .author{
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:6px;
   margin-top:5px;
-  cursor:pointer;
+  opacity:0.7;
 }
 
-.author img{
-  width:28px;
-  height:28px;
+.pfp{
+  width:22px;
+  height:22px;
   border-radius:50%;
 }
 
-.check{
-  width:16px;
-}
+.check{width:16px;}
 
 /* BUTTONS */
 .btn{
   padding:10px 14px;
-  border-radius:12px;
+  border-radius:10px;
   border:2px solid #a855f7;
-  background:linear-gradient(135deg,#a855f7,#7e22ce);
+  background:#a855f7;
   color:white;
   cursor:pointer;
-  font-family:'MultiCraft';
+  margin-top:10px;
 }
 
 /* ACTIONS */
@@ -97,183 +100,205 @@ body{
   margin-top:15px;
 }
 
-.like,.dislike,.fav{
+.fav{
+  font-size:20px;
   cursor:pointer;
-  font-size:18px;
 }
 
 /* COMMENTS */
 .comments{
-  margin-top:25px;
+  max-width:900px;
+  margin:20px auto;
+}
+
+.comment-box{
+  display:flex;
+  gap:10px;
+}
+
+.comment-box input{
+  flex:1;
+  padding:10px;
+  border-radius:10px;
+  border:2px solid #a855f7;
 }
 
 .comment{
-  background:#f5f3ff;
+  background:white;
+  margin-top:10px;
   padding:10px;
   border-radius:10px;
-  margin-top:10px;
+}
+
+.comment-author{
+  font-size:12px;
+  opacity:0.7;
+}
+
+.author-badge{
+  color:red;
+  font-size:11px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="top">
-  <button class="back" onclick="location.href='index.html'">← Back</button>
-</div>
+<div class="back" onclick="location.href='index.html'">← Back</div>
 
-<div class="card">
+<div id="card" class="card">
   <img id="bg" class="bg">
-
   <div class="content">
-    <div class="name" id="name"></div>
+    <h2 id="name"></h2>
 
-    <div class="author" id="authorBox"></div>
+    <div id="author" class="author"></div>
 
     <p id="desc"></p>
 
     <div class="actions">
-      <span class="fav" onclick="toggleFav()">🤍</span>
-      <span class="like" onclick="like()">👍 <span id="likes">0</span></span>
-      <span class="dislike" onclick="dislike()">👎 <span id="dislikes">0</span></span>
+      <span id="fav" class="fav"></span>
+      <button class="btn" onclick="like()">👍 <span id="likes">0</span></button>
+      <button class="btn" onclick="dislike()">👎 <span id="dislikes">0</span></button>
     </div>
-
-    <!-- COMMENTS -->
-    <div class="comments">
-      <h3>Comments</h3>
-
-      <div id="commentInputBox">
-        <input id="commentInput" placeholder="Write a comment..." style="width:70%">
-        <button class="btn" onclick="sendComment()">Send</button>
-      </div>
-
-      <div id="comments"></div>
-    </div>
-
   </div>
+</div>
+
+<!-- COMMENTS -->
+<div class="comments">
+  <h3>Comments</h3>
+
+  <div class="comment-box">
+    <input id="commentInput" placeholder="Write a comment...">
+    <button class="btn" onclick="sendComment()">Send</button>
+  </div>
+
+  <div id="commentsList"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, doc, getDoc, updateDoc, increment,
-  collection, addDoc, getDocs
+  getFirestore, doc, getDoc,
+  updateDoc, increment,
+  collection, addDoc, getDocs, query, where
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* FIREBASE */
 const app = initializeApp({
   apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
   authDomain: "mcspaceomega.firebaseapp.com",
-  projectId: "mcspaceomega",
-  storageBucket: "mcspaceomega.firebasestorage.app",
-  messagingSenderId: "984192110931",
-  appId: "1:984192110931:web:d7392a9815ab248c6391a6"
+  projectId: "mcspaceomega"
 });
+
 const db = getFirestore(app);
 
-/* DATA */
 const code = new URLSearchParams(location.search).get("code");
 
-const verified = ["RedWorld"];
-const recommended = ["M5R9X1NY"];
-
-const nameEl = document.getElementById("name");
-const descEl = document.getElementById("desc");
-const bgEl = document.getElementById("bg");
-const authorBox = document.getElementById("authorBox");
-
-const likesEl = document.getElementById("likes");
-const dislikesEl = document.getElementById("dislikes");
+let serverData;
+let authorData;
 
 /* LOAD SERVER */
 async function load(){
   const snap = await getDoc(doc(db,"servers",code));
+  if(!snap.exists()) return;
 
-  if(!snap.exists()){
-    nameEl.innerText="Server not found";
-    return;
-  }
+  serverData = snap.data();
 
-  const s = snap.data();
+  document.getElementById("name").innerText = serverData.name;
+  document.getElementById("desc").innerText = serverData.desc;
+  document.getElementById("bg").src = serverData.bg;
 
-  nameEl.innerText = s.name;
-  descEl.innerText = s.desc;
-  bgEl.src = s.bg || "bgs/bg1.png";
-
-  likesEl.innerText = s.likes || 0;
-  dislikesEl.innerText = s.dislikes || 0;
+  document.getElementById("likes").innerText = serverData.likes || 0;
+  document.getElementById("dislikes").innerText = serverData.dislikes || 0;
 
   /* AUTHOR */
-  const userSnap = await getDoc(doc(db,"users",s.author));
-  const pfp = userSnap.exists() ? (userSnap.data().pfp || "assets/default.png") : "assets/default.png";
+  const userSnap = await getDoc(doc(db,"users",serverData.author));
+  authorData = userSnap.exists()?userSnap.data():{};
 
-  authorBox.innerHTML = `
-    <img src="${pfp}">
-    <span>${s.author}</span>
-    ${verified.includes(s.author)?'<img class="check" src="assets/check.png">':''}
+  document.getElementById("author").innerHTML = `
+    <img class="pfp" src="${authorData.pfpURL && authorData.pfpURL!=="no"?authorData.pfpURL:"assets/default.png"}">
+    <span onclick="openProfile()" style="cursor:pointer">${serverData.author}</span>
+    ${authorData.verified?'<img class="check" src="assets/check.png">':''}
   `;
 
-  authorBox.onclick = () => location.href="profiles.html?u="+s.author;
+  /* FAVORITE */
+  const favs = JSON.parse(localStorage.getItem("favs")||"[]");
+  fav.innerText = favs.includes(code) ? "❤️" : "🤍";
+
+  /* TRENDING / RECOMMENDED */
+  const growth = (serverData.visits||0)-(serverData.lastVisits||0);
+  if(growth>5) card.classList.add("trending");
+
+  if(["M5R9X1NY"].includes(code)) card.classList.add("recommended");
 
   loadComments();
 }
 
-/* FAVORITES */
-window.toggleFav=function(){
+/* FAVORITE */
+fav.onclick = ()=>{
   let favs = JSON.parse(localStorage.getItem("favs")||"[]");
-  if(favs.includes(code)){
-    favs = favs.filter(x=>x!==code);
-  }else{
-    favs.push(code);
-  }
+  favs.includes(code)?favs=favs.filter(x=>x!==code):favs.push(code);
   localStorage.setItem("favs",JSON.stringify(favs));
+  fav.innerText = favs.includes(code) ? "❤️" : "🤍";
 };
 
 /* LIKE / DISLIKE */
-window.like = async()=>{
+window.like = async ()=>{
   await updateDoc(doc(db,"servers",code),{likes:increment(1)});
-  likesEl.innerText++;
+  likes.innerText++;
 };
 
-window.dislike = async()=>{
+window.dislike = async ()=>{
   await updateDoc(doc(db,"servers",code),{dislikes:increment(1)});
-  dislikesEl.innerText++;
+  dislikes.innerText++;
 };
 
 /* COMMENTS */
 async function loadComments(){
-  const snap = await getDocs(collection(db,"comments"));
-  const box = document.getElementById("comments");
-  box.innerHTML="";
+  const q = query(collection(db,"comments"), where("server","==",code));
+  const snap = await getDocs(q);
 
-  snap.forEach(d=>{
-    const c = d.data();
-    if(c.server !== code) return;
+  commentsList.innerHTML="";
 
-    const div=document.createElement("div");
+  snap.forEach(docSnap=>{
+    const c = docSnap.data();
+
+    const div = document.createElement("div");
     div.className="comment";
-    div.innerHTML=`<b>${c.author}</b>: ${c.content}`;
-    box.appendChild(div);
+
+    div.innerHTML=`
+      <div class="comment-author">
+        ${c.author}
+        ${c.author===serverData.author?'<span class="author-badge">AUTHOR</span>':''}
+      </div>
+      <div>${c.content}</div>
+    `;
+
+    commentsList.appendChild(div);
   });
 }
 
-window.sendComment = async()=>{
+/* SEND COMMENT */
+window.sendComment = async ()=>{
   const user = localStorage.getItem("user");
-  if(!user) return alert("Login required");
+  if(!user) return alert("Sign up first");
 
-  const text = commentInput.value;
-  if(!text) return;
+  if(!commentInput.value.trim()) return;
 
   await addDoc(collection(db,"comments"),{
-    server:code,
-    content:text,
-    author:user,
+    content: commentInput.value,
+    author: user,
+    server: code,
     likes:0,
     dislikes:0
   });
 
   commentInput.value="";
   loadComments();
+};
+
+/* PROFILE */
+window.openProfile = ()=>{
+  location.href = "profiles.html?u="+serverData.author;
 };
 
 load();
