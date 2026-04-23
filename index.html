@@ -25,6 +25,7 @@ body{
   align-items:center;
   padding:15px 25px;
   border-bottom:2px solid #a855f7;
+  gap:10px;
 }
 
 .logo{display:flex;align-items:center;gap:10px;}
@@ -32,12 +33,16 @@ body{
 
 /* SEARCH */
 .search{
-  padding:10px;
+  padding:10px 14px;
   border-radius:12px;
   border:2px solid #a855f7;
   outline:none;
   font-family:'MultiCraft';
-  width:200px;
+  width:260px;
+  transition:0.25s;
+}
+.search:focus{
+  box-shadow:0 0 10px rgba(168,85,247,0.4);
 }
 
 /* BUTTONS */
@@ -67,6 +72,7 @@ body{
 
 /* CARD */
 .card{
+  position:relative;
   border-radius:20px;
   background:white;
   overflow:hidden;
@@ -89,13 +95,14 @@ body{
   position:absolute;
   top:10px;
   left:10px;
-  padding:5px 10px;
+  padding:6px 10px;
   border-radius:10px;
   font-size:11px;
-  color:white;
+  font-weight:bold;
+  z-index:5;
 }
 
-.badge.trending{background:red;}
+.badge.trending{background:red;color:white;}
 .badge.recommended{
   background:linear-gradient(90deg,#00e5ff,#00ffa6);
   color:black;
@@ -116,8 +123,6 @@ body{
   flex:1;
 }
 
-.title-row{display:flex;gap:6px;align-items:center;}
-
 .name{font-weight:bold;font-size:14px;}
 
 .author{
@@ -125,21 +130,18 @@ body{
   opacity:0.7;
 }
 
-.check{width:14px;}
+.check{width:14px;margin-left:4px;}
 
-/* DESC */
 .desc{
   font-size:13px;
   opacity:0.7;
   margin-top:6px;
-
   display:-webkit-box;
   -webkit-line-clamp:3;
   -webkit-box-orient:vertical;
   overflow:hidden;
 }
 
-/* ACTIONS */
 .actions{
   margin-top:auto;
   display:flex;
@@ -152,10 +154,10 @@ body{
   opacity:0.7;
 }
 
-/* FAVORITE */
 .fav{
   cursor:pointer;
   font-size:16px;
+  margin-right:10px;
 }
 
 /* MODAL */
@@ -174,6 +176,12 @@ body{
   padding:25px;
   border-radius:20px;
   text-align:center;
+  width:300px;
+}
+
+.close{
+  float:right;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -186,7 +194,7 @@ body{
     <div>MTCSpace</div>
   </div>
 
-  <input id="search" class="search" placeholder="Search...">
+  <input id="search" class="search" placeholder="Search servers...">
 
   <div>
     <button class="btn" onclick="openAdd()">+ Add my server</button>
@@ -197,10 +205,11 @@ body{
 
 <div id="grid" class="grid"></div>
 
-<!-- AUTH MODAL -->
+<!-- AUTH -->
 <div id="authModal" class="modal">
   <div class="modal-box">
-    <h3>Sign Up / Login</h3>
+    <span class="close" onclick="authModal.style.display='none'">✖</span>
+    <h3>Account</h3>
     <input id="user" placeholder="Username"><br><br>
     <input id="pass" type="password" placeholder="Password"><br><br>
     <button class="btn" onclick="signup()">Sign Up</button>
@@ -223,43 +232,33 @@ const db=getFirestore(app);
 const recommended=["M5R9X1NY"];
 const verified=["RedWorld"];
 
+let allServers=[];
+
 /* AUTH */
 function setUser(u){
   localStorage.setItem("user",u);
-  document.getElementById("authBtn").innerText=u;
+  authBtn.innerText=u;
 }
 
-window.signup=async function(){
-  const u=user.value;
-  const p=pass.value;
-
-  const ref=doc(db,"users",u);
-  const snap=await getDoc(ref);
-
-  if(snap.exists()) return alert("Taken");
-
-  await setDoc(ref,{password:p});
-  setUser(u);
+window.signup=async()=>{
+  const ref=doc(db,"users",user.value);
+  if((await getDoc(ref)).exists()) return alert("Taken");
+  await setDoc(ref,{password:pass.value});
+  setUser(user.value);
   authModal.style.display="none";
 };
 
-window.login=async function(){
-  const ref=doc(db,"users",user.value);
-  const snap=await getDoc(ref);
-
+window.login=async()=>{
+  const snap=await getDoc(doc(db,"users",user.value));
   if(!snap.exists()) return alert("No user");
-
   if(snap.data().password!==pass.value) return alert("Wrong pass");
-
   setUser(user.value);
   authModal.style.display="none";
 };
 
 window.openAuth=()=>authModal.style.display="flex";
 
-/* LOAD SERVERS */
-let allServers=[];
-
+/* LOAD */
 async function load(){
   const snap=await getDocs(collection(db,"servers"));
   allServers=[];
@@ -267,12 +266,14 @@ async function load(){
   snap.forEach(d=>{
     const s=d.data();
     s.code=d.id;
+    s.growth=(s.visits||0)-(s.lastVisits||0);
     allServers.push(s);
   });
 
   render(allServers);
 }
 
+/* RENDER */
 function render(list){
   const grid=document.getElementById("grid");
   grid.innerHTML="";
@@ -285,6 +286,8 @@ function render(list){
     const trending=(s.growth||0)>maxGrowth*0.6;
     const isRec=recommended.includes(s.code);
 
+    const favs=JSON.parse(localStorage.getItem("favs")||"[]");
+
     const card=document.createElement("div");
     card.className="card"+(trending?" trending":"")+(isRec?" recommended":"");
 
@@ -294,9 +297,7 @@ function render(list){
 
       <img class="bg" src="${s.bg||'bgs/bg1.png'}">
       <div class="content">
-        <div class="title-row">
-          <div class="name">${s.name}</div>
-        </div>
+        <div class="name">${s.name}</div>
 
         <div class="author">
           by ${s.author}
@@ -308,7 +309,9 @@ function render(list){
         <div class="actions">
           <div class="visits">${s.visits||0} visits</div>
           <div>
-            <span class="fav" onclick="fav('${s.code}')">❤</span>
+            <span class="fav" onclick="fav('${s.code}')">
+              ${favs.includes(s.code)?"❤️":"🤍"}
+            </span>
             <button class="btn" onclick="play('${s.code}')">Play</button>
           </div>
         </div>
@@ -318,16 +321,24 @@ function render(list){
   });
 }
 
+/* FAVORITES */
+window.fav=function(code){
+  let favs=JSON.parse(localStorage.getItem("favs")||"[]");
+  favs.includes(code)?favs=favs.filter(x=>x!==code):favs.push(code);
+  localStorage.setItem("favs",JSON.stringify(favs));
+  render(allServers);
+};
+
 /* SEARCH */
 search.oninput=()=>{
   const q=search.value.toLowerCase();
   render(allServers.filter(s=>s.name.toLowerCase().includes(q)));
 };
 
-/* PLAY + COOLDOWN */
+/* PLAY */
 const COOLDOWN=10*60*1000;
 
-window.play=async function(code){
+window.play=async(code)=>{
   const key="visit_"+code;
   const now=Date.now();
 
@@ -344,12 +355,12 @@ window.openAdd=()=>{
   if(!localStorage.getItem("user")){
     openAuth();
   }else{
-    location.href="mailto:add@mtcspace.com?subject=Add Server";
+    location.href="mailto:add@mtcspace.com";
   }
 };
 
 window.contact=()=>{
-  location.href="mailto:contact@mtcspace.com?subject=I need help";
+  location.href="mailto:contact@mtcspace.com";
 };
 
 load();
