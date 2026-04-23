@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="refresh" content="0; url=https://mtcspace.com/m">
 <title>MTCSpace</title>
 
 <style>
@@ -19,26 +18,32 @@ body{
   color:#2d0b4e;
 }
 
+/* HEADER */
 .header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   padding:15px 25px;
   border-bottom:2px solid #a855f7;
-  gap:10px;
+  gap:15px;
 }
 
 .logo{display:flex;gap:10px;align-items:center;}
 .logo img{height:40px;}
 
 .search{
-  padding:10px;
+  padding:10px 14px;
   border-radius:12px;
   border:2px solid #a855f7;
-  width:260px;
+  width:280px;
   font-family:'MultiCraft';
+  transition:0.2s;
+}
+.search:focus{
+  box-shadow:0 0 12px rgba(168,85,247,0.5);
 }
 
+/* BUTTON */
 .btn{
   padding:10px 16px;
   border-radius:12px;
@@ -46,8 +51,16 @@ body{
   background:linear-gradient(135deg,#a855f7,#7e22ce);
   color:white;
   cursor:pointer;
+  transition:0.2s;
+}
+.btn:hover{
+  transform:translateY(-2px) scale(1.05);
+}
+.btn:active{
+  transform:scale(0.9);
 }
 
+/* GRID */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
@@ -55,41 +68,97 @@ body{
   padding:30px;
 }
 
+/* CARD */
 .card{
-  position:relative;
   border-radius:20px;
   overflow:hidden;
   background:white;
-  box-shadow:0 15px 35px rgba(168,85,247,0.25);
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
   border:2px solid transparent;
+  transition:0.2s;
+  position:relative;
+}
+.card:hover{
+  transform:translateY(-6px);
 }
 
-.card.trending{border:2px solid red;}
-.card.recommended{border:2px solid cyan;}
+/* BADGES */
+.card.trending{border-color:red;}
+.card.recommended{border-color:cyan;}
 
 .badge{
   position:absolute;
   top:10px;
   left:10px;
-  padding:5px 10px;
-  border-radius:10px;
   font-size:11px;
-  z-index:5;
+  padding:5px 8px;
+  border-radius:10px;
 }
 .badge.trending{background:red;color:white;}
 .badge.recommended{background:cyan;color:black;}
 
-.bg{width:100%;aspect-ratio:16/9;object-fit:cover;}
-
+/* CONTENT */
+.bg{
+  width:100%;
+  aspect-ratio:16/9;
+  object-fit:cover;
+}
 .content{padding:12px;}
+
+.author{
+  font-size:12px;
+  opacity:0.7;
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+.author img{
+  width:16px;
+  height:16px;
+  border-radius:50%;
+}
+
+.desc{
+  font-size:13px;
+  opacity:0.7;
+  margin-top:6px;
+}
 
 .actions{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  margin-top:10px;
 }
 
-.fav{cursor:pointer;}
+.fav{
+  cursor:pointer;
+  font-size:16px;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,0.5);
+}
+.modal-box{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  width:320px;
+}
+input{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:2px solid #a855f7;
+  margin-bottom:10px;
+  font-family:'MultiCraft';
+}
 </style>
 </head>
 
@@ -113,62 +182,73 @@ body{
 <div id="grid" class="grid"></div>
 
 <!-- AUTH -->
-<div id="authModal" style="display:none;position:fixed;top:0;width:100%;height:100%;background:#0005;">
-  <div style="background:white;padding:20px;margin:100px auto;width:300px;border-radius:20px;">
+<div id="authModal" class="modal">
+  <div class="modal-box">
     <h3>Account</h3>
-    <input id="user" placeholder="Username"><br><br>
-    <input id="pass" type="password" placeholder="Password"><br><br>
-    <input id="pfp" placeholder="Profile picture URL (optional)"><br><br>
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="login()">Login</button>
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
+    <input id="pfp" placeholder="Profile Picture URL (optional)">
+    <button class="btn" onclick="signup()">Sign Up</button>
+    <button class="btn" onclick="login()">Login</button>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, collection, getDocs, doc, getDoc,
-  setDoc, updateDoc, increment
+getFirestore, collection, getDocs, doc, getDoc,
+setDoc, updateDoc, increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* FULL CONFIG */
 const app = initializeApp({
-  apiKey:"AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
-  authDomain:"mcspaceomega.firebaseapp.com",
-  projectId:"mcspaceomega"
+  apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
+  authDomain: "mcspaceomega.firebaseapp.com",
+  projectId: "mcspaceomega",
+  storageBucket: "mcspaceomega.firebasestorage.app",
+  messagingSenderId: "984192110931",
+  appId: "1:984192110931:web:d7392a9815ab248c6391a6"
 });
+
 const db = getFirestore(app);
 
 let allServers=[];
-let userLocal=localStorage.getItem("user");
+let currentUser=localStorage.getItem("user");
 
-if(userLocal) authBtn.innerText=userLocal;
+if(currentUser) authBtn.innerText=currentUser;
 
 /* AUTH */
 window.signup=async()=>{
-  const u=user.value;
-  const p=pass.value;
-  const pic=pfp.value||"no";
+  const u=user.value.trim();
+  const p=pass.value.trim();
+  const pic=pfp.value.trim()||"no";
+
+  if(!u||!p) return alert("Fill fields");
 
   const ref=doc(db,"users",u);
-  if((await getDoc(ref)).exists()) return alert("Taken");
+  if((await getDoc(ref)).exists()) return alert("Username taken");
 
-  await setDoc(ref,{password:p,pfp:pic,subs:0,desc:""});
+  await setDoc(ref,{
+    password:p,
+    pfp:pic,
+    subs:0,
+    desc:""
+  });
+
   localStorage.setItem("user",u);
-  authBtn.innerText=u;
-  authModal.style.display="none";
+  location.reload();
 };
 
 window.login=async()=>{
   const snap=await getDoc(doc(db,"users",user.value));
   if(!snap.exists()) return alert("No user");
-  if(snap.data().password!==pass.value) return alert("Wrong");
+  if(snap.data().password!==pass.value) return alert("Wrong password");
 
   localStorage.setItem("user",user.value);
-  authBtn.innerText=user.value;
-  authModal.style.display="none";
+  location.reload();
 };
 
-window.openAuth=()=>authModal.style.display="block";
+window.openAuth=()=>authModal.style.display="flex";
 
 /* LOAD SERVERS */
 async function load(){
@@ -188,12 +268,14 @@ async function load(){
 /* RENDER */
 async function render(list){
   grid.innerHTML="";
+
   const maxGrowth=Math.max(...list.map(s=>s.growth||0),1);
 
   for(const s of list){
     const userSnap=await getDoc(doc(db,"users",s.author));
-    const pfp=userSnap.exists()&&userSnap.data().pfp!=="no"
-      ?userSnap.data().pfp:"assets/default.png";
+    const pfp=userSnap.exists() && userSnap.data().pfp!=="no"
+      ?userSnap.data().pfp
+      :"assets/default.png";
 
     const trending=s.growth>maxGrowth*0.6;
     const favs=JSON.parse(localStorage.getItem("favs")||"[]");
@@ -202,19 +284,25 @@ async function render(list){
     card.className="card"+(trending?" trending":"");
 
     card.innerHTML=`
-      ${trending?'<div class="badge trending">TRENDING</div>':''}
+      ${trending?'<div class="badge trending">🔥 TRENDING</div>':''}
       <img class="bg" src="${s.bg}">
       <div class="content">
-        <b>${s.name}</b><br>
-        <small><img src="${pfp}" width="14"> ${s.author}</small>
-        <p>${s.desc}</p>
+        <b>${s.name}</b>
+
+        <div class="author">
+          <img src="${pfp}">
+          ${s.author}
+        </div>
+
+        <div class="desc">${s.desc}</div>
+
         <div class="actions">
           <span>${s.visits||0} visits</span>
           <div>
             <span class="fav" onclick="fav('${s.code}')">
               ${favs.includes(s.code)?"❤️":"🤍"}
             </span>
-            <button onclick="play('${s.code}')">Play</button>
+            <button class="btn" onclick="play('${s.code}')">Play</button>
           </div>
         </div>
       </div>
@@ -240,7 +328,7 @@ search.oninput=()=>{
 /* PLAY */
 const COOLDOWN=600000;
 window.play=async(c)=>{
-  const key="v_"+c;
+  const key="visit_"+c;
   const now=Date.now();
 
   if(!localStorage.getItem(key)||now-localStorage.getItem(key)>COOLDOWN){
@@ -256,7 +344,9 @@ window.openAdd=()=>{
   location.href="mailto:add@mtcspace.com";
 };
 
-window.contact=()=>location.href="mailto:contact@mtcspace.com";
+window.contact=()=>{
+  location.href="mailto:contact@mtcspace.com?subject=I need help";
+};
 
 load();
 </script>
