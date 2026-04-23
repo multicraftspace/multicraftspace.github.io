@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Server</title>
+<title>Loading...</title>
 
 <style>
 @font-face{
@@ -18,17 +18,32 @@ body{
   color:#2d0b4e;
 }
 
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:20px;
+/* HEADER */
+.top{
+  padding:15px;
+}
+.back{
+  padding:10px 16px;
+  border-radius:12px;
+  border:2px solid #a855f7;
+  background:linear-gradient(135deg,#a855f7,#7e22ce);
+  color:white;
+  cursor:pointer;
 }
 
+/* CARD */
 .card{
+  max-width:900px;
+  margin:auto;
   background:white;
   border-radius:20px;
   overflow:hidden;
-  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  box-shadow:0 15px 40px rgba(168,85,247,0.25);
+  animation:fade 0.4s ease;
+}
+@keyframes fade{
+  from{opacity:0; transform:translateY(15px);}
+  to{opacity:1;}
 }
 
 .bg{
@@ -37,44 +52,63 @@ body{
   object-fit:cover;
 }
 
-.content{padding:20px;}
+.content{
+  padding:20px;
+}
+
+.name{
+  font-size:22px;
+  font-weight:bold;
+}
 
 .author{
   display:flex;
   align-items:center;
   gap:8px;
+  margin-top:5px;
   cursor:pointer;
 }
+
 .author img{
-  width:24px;
-  height:24px;
+  width:28px;
+  height:28px;
   border-radius:50%;
 }
 
+.check{
+  width:16px;
+}
+
+/* BUTTONS */
 .btn{
-  padding:8px 14px;
-  border-radius:10px;
-  border:none;
-  background:#a855f7;
+  padding:10px 14px;
+  border-radius:12px;
+  border:2px solid #a855f7;
+  background:linear-gradient(135deg,#a855f7,#7e22ce);
   color:white;
   cursor:pointer;
-}
-
-.comment-box{
-  margin-top:20px;
-}
-
-input{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:2px solid #a855f7;
-  margin-bottom:10px;
   font-family:'MultiCraft';
 }
 
+/* ACTIONS */
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+.like,.dislike,.fav{
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* COMMENTS */
+.comments{
+  margin-top:25px;
+}
+
 .comment{
-  background:white;
+  background:#f5f3ff;
   padding:10px;
   border-radius:10px;
   margin-top:10px;
@@ -84,40 +118,49 @@ input{
 
 <body>
 
-<div class="container">
+<div class="top">
+  <button class="back" onclick="location.href='index.html'">← Back</button>
+</div>
 
 <div class="card">
   <img id="bg" class="bg">
-  <div class="content">
-    <h2 id="name"></h2>
 
-    <div id="authorBox" class="author"></div>
+  <div class="content">
+    <div class="name" id="name"></div>
+
+    <div class="author" id="authorBox"></div>
 
     <p id="desc"></p>
 
-    <button class="btn" onclick="like()">👍 <span id="likes"></span></button>
-    <button class="btn" onclick="dislike()">👎 <span id="dislikes"></span></button>
+    <div class="actions">
+      <span class="fav" onclick="toggleFav()">🤍</span>
+      <span class="like" onclick="like()">👍 <span id="likes">0</span></span>
+      <span class="dislike" onclick="dislike()">👎 <span id="dislikes">0</span></span>
+    </div>
+
+    <!-- COMMENTS -->
+    <div class="comments">
+      <h3>Comments</h3>
+
+      <div id="commentInputBox">
+        <input id="commentInput" placeholder="Write a comment..." style="width:70%">
+        <button class="btn" onclick="sendComment()">Send</button>
+      </div>
+
+      <div id="comments"></div>
+    </div>
+
   </div>
-</div>
-
-<div class="comment-box">
-  <h3>Comments</h3>
-
-  <input id="cInput" placeholder="Write a comment...">
-  <button class="btn" onclick="sendComment()">Send</button>
-
-  <div id="comments"></div>
-</div>
-
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-getFirestore, doc, getDoc, updateDoc, increment,
-collection, addDoc, getDocs
+  getFirestore, doc, getDoc, updateDoc, increment,
+  collection, addDoc, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* FIREBASE */
 const app = initializeApp({
   apiKey: "AIzaSyD4An6C8ZEdiJsohwo76QuRxv1hhjNmRlI",
   authDomain: "mcspaceomega.firebaseapp.com",
@@ -126,89 +169,110 @@ const app = initializeApp({
   messagingSenderId: "984192110931",
   appId: "1:984192110931:web:d7392a9815ab248c6391a6"
 });
-
 const db = getFirestore(app);
 
+/* DATA */
 const code = new URLSearchParams(location.search).get("code");
-let serverData=null;
+
+const verified = ["RedWorld"];
+const recommended = ["M5R9X1NY"];
+
+const nameEl = document.getElementById("name");
+const descEl = document.getElementById("desc");
+const bgEl = document.getElementById("bg");
+const authorBox = document.getElementById("authorBox");
+
+const likesEl = document.getElementById("likes");
+const dislikesEl = document.getElementById("dislikes");
 
 /* LOAD SERVER */
 async function load(){
   const snap = await getDoc(doc(db,"servers",code));
-  if(!snap.exists()) return;
+
+  if(!snap.exists()){
+    nameEl.innerText="Server not found";
+    return;
+  }
 
   const s = snap.data();
-  serverData=s;
 
-  name.innerText=s.name;
-  desc.innerText=s.desc;
-  bg.src=s.bg;
+  nameEl.innerText = s.name;
+  descEl.innerText = s.desc;
+  bgEl.src = s.bg || "bgs/bg1.png";
 
-  likes.innerText=s.likes||0;
-  dislikes.innerText=s.dislikes||0;
+  likesEl.innerText = s.likes || 0;
+  dislikesEl.innerText = s.dislikes || 0;
 
-  loadAuthor(s.author);
-  loadComments();
-}
-
-/* AUTHOR */
-async function loadAuthor(username){
-  const snap = await getDoc(doc(db,"users",username));
-  const data = snap.exists()?snap.data():null;
-
-  const pfp = data && data.pfp!=="no" ? data.pfp : "assets/default.png";
+  /* AUTHOR */
+  const userSnap = await getDoc(doc(db,"users",s.author));
+  const pfp = userSnap.exists() ? (userSnap.data().pfp || "assets/default.png") : "assets/default.png";
 
   authorBox.innerHTML = `
     <img src="${pfp}">
-    <b>@${username}</b>
+    <span>${s.author}</span>
+    ${verified.includes(s.author)?'<img class="check" src="assets/check.png">':''}
   `;
 
-  authorBox.onclick = () => {
-    location.href = "profiles.html?u=@"+username;
-  };
+  authorBox.onclick = () => location.href="profiles.html?u="+s.author;
+
+  loadComments();
 }
 
-/* LIKE SYSTEM */
-window.like = ()=>updateDoc(doc(db,"servers",code),{likes:increment(1)});
-window.dislike = ()=>updateDoc(doc(db,"servers",code),{dislikes:increment(1)});
+/* FAVORITES */
+window.toggleFav=function(){
+  let favs = JSON.parse(localStorage.getItem("favs")||"[]");
+  if(favs.includes(code)){
+    favs = favs.filter(x=>x!==code);
+  }else{
+    favs.push(code);
+  }
+  localStorage.setItem("favs",JSON.stringify(favs));
+};
+
+/* LIKE / DISLIKE */
+window.like = async()=>{
+  await updateDoc(doc(db,"servers",code),{likes:increment(1)});
+  likesEl.innerText++;
+};
+
+window.dislike = async()=>{
+  await updateDoc(doc(db,"servers",code),{dislikes:increment(1)});
+  dislikesEl.innerText++;
+};
 
 /* COMMENTS */
 async function loadComments(){
-  comments.innerHTML="";
   const snap = await getDocs(collection(db,"comments"));
+  const box = document.getElementById("comments");
+  box.innerHTML="";
 
   snap.forEach(d=>{
     const c = d.data();
-    if(c.server!==code) return;
+    if(c.server !== code) return;
 
     const div=document.createElement("div");
     div.className="comment";
-
-    const authorMark = c.author===serverData.author ? " (AUTHOR)" : "";
-
-    div.innerHTML = `
-      <b>${c.author}${authorMark}</b><br>
-      ${c.content}
-    `;
-
-    comments.appendChild(div);
+    div.innerHTML=`<b>${c.author}</b>: ${c.content}`;
+    box.appendChild(div);
   });
 }
 
-/* SEND COMMENT */
-window.sendComment = async ()=>{
+window.sendComment = async()=>{
   const user = localStorage.getItem("user");
-  if(!user) return alert("Login first");
+  if(!user) return alert("Login required");
+
+  const text = commentInput.value;
+  if(!text) return;
 
   await addDoc(collection(db,"comments"),{
     server:code,
-    content:cInput.value,
+    content:text,
     author:user,
     likes:0,
     dislikes:0
   });
 
-  cInput.value="";
+  commentInput.value="";
   loadComments();
 };
 
